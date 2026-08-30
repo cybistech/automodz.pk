@@ -61,6 +61,11 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('shop.products.show', compact('product', 'related'));
+        return view('shop.products.show', compact('product', 'related'))
+            ->with('seo', [
+                'title' => $product->meta_title ?: $product->name.' | AutoPartsPro',
+                'description' => $product->meta_description ?: $product->short_description,
+                'keywords' => $product->meta_keywords,
+            ]);
     }
 }

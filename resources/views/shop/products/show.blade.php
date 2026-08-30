@@ -1,6 +1,9 @@
 @extends('layouts.shop')
 
 @section('title', $product->name)
+@section('meta_title', $product->meta_title ?: $product->name.' | Buy Online Pakistan')
+@section('meta_description', $product->meta_description ?: $product->short_description)
+@section('meta_keywords', $product->meta_keywords)
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -65,10 +68,13 @@
             <h1 class="mt-2 text-3xl font-bold text-white">{{ $product->name }}</h1>
             <p class="mt-1 text-sm text-slate-400">SKU: {{ $product->sku }} | Part #: {{ $product->part_number ?? 'N/A' }}</p>
 
-            <div class="mt-6 flex items-baseline gap-3">
+            <div class="mt-6 flex items-baseline gap-3 flex-wrap">
                 @if($product->sale_price)
                     <span class="text-3xl font-bold text-orange-400">Rs. {{ number_format($product->sale_price) }}</span>
                     <span class="text-lg text-slate-500 line-through">Rs. {{ number_format($product->price) }}</span>
+                    @if($product->discount_percent)
+                        <span class="badge bg-red-500 text-white">{{ $product->discount_percent }}% OFF</span>
+                    @endif
                 @else
                     <span class="text-3xl font-bold text-orange-400">Rs. {{ number_format($product->price) }}</span>
                 @endif

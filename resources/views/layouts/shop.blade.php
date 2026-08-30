@@ -4,7 +4,15 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', config('app.name')) - Auto Parts Store</title>
+    <title>@yield('meta_title', trim(View::getSection('title', config('app.name')).' - Auto Parts Store'))</title>
+    <meta name="description" content="@yield('meta_description', 'Shop quality auto and motorcycle parts in Pakistan. Best prices in PKR with JazzCash, Stripe, bank transfer and COD.')">
+    @hasSection('meta_keywords')
+        <meta name="keywords" content="@yield('meta_keywords')">
+    @endif
+    <meta property="og:title" content="@yield('meta_title', config('app.name'))">
+    <meta property="og:description" content="@yield('meta_description', 'Shop quality auto and motorcycle parts in Pakistan.')">
+    <meta property="og:type" content="website">
+    <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])

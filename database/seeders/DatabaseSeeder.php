@@ -157,5 +157,7 @@ class DatabaseSeeder extends Seeder
                 ])
             );
         }
+
+        $this->call(MotorcycleCatalogSeeder::class);
     }
 }

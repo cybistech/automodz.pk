@@ -47,6 +47,24 @@
     </div>
 </section>
 
+<section class="bg-gradient-to-r from-red-950/50 to-orange-950/50 py-16 border-y border-orange-500/20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="flex items-center justify-between">
+            <div>
+                <span class="badge bg-red-500 text-white">Hot Deals</span>
+                <h2 class="mt-2 text-2xl font-bold text-white">Special Offers & Sales</h2>
+                <p class="mt-1 text-slate-400">Limited-time reduced prices in PKR — grab them before they're gone!</p>
+            </div>
+            <a href="{{ route('products.index', ['sort' => 'price_low']) }}" class="text-sm font-medium text-orange-400 hover:text-orange-300">View All Deals →</a>
+        </div>
+        <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            @foreach($saleProducts as $product)
+                <x-product-card :product="$product" />
+            @endforeach
+        </div>
+    </div>
+</section>
+
 <section class="bg-slate-900/50 py-16">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div class="flex items-center justify-between">

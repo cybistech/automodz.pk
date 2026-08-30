@@ -126,6 +126,9 @@ class ProductController extends Controller
             'warranty' => 'nullable|string|max:100',
             'weight' => 'nullable|numeric|min:0',
             'video_url' => 'nullable|url|max:500',
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:500',
             'images.*' => 'nullable|image|max:4096',
             'video_file' => 'nullable|mimes:mp4,webm,mov|max:51200',
         ]);

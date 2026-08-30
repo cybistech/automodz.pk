@@ -17,6 +17,9 @@ class Product extends Model
         'brand',
         'short_description',
         'description',
+        'meta_title',
+        'meta_description',
+        'meta_keywords',
         'price',
         'sale_price',
         'stock',
@@ -103,5 +106,19 @@ class Product extends Model
     public function scopeFeatured($query)
     {
         return $query->where('is_featured', true);
+    }
+
+    public function scopeOnSale($query)
+    {
+        return $query->whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price');
+    }
+
+    public function getDiscountPercentAttribute(): ?int
+    {
+        if (! $this->sale_price || $this->sale_price >= $this->price) {
+            return null;
+        }
+
+        return (int) round((($this->price - $this->sale_price) / $this->price) * 100);
     }
 }

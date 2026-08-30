@@ -117,6 +117,22 @@
     </div>
 
     <div class="card p-6 space-y-4">
+        <h3 class="font-semibold">SEO Settings</h3>
+        <div>
+            <label class="text-sm text-slate-400">Meta Title</label>
+            <input type="text" name="meta_title" value="{{ old('meta_title', $product?->meta_title) }}" class="input-field mt-1" placeholder="Product title for search engines (60 chars)">
+        </div>
+        <div>
+            <label class="text-sm text-slate-400">Meta Description</label>
+            <textarea name="meta_description" class="input-field mt-1" rows="2" placeholder="Description for Google search results (160 chars)">{{ old('meta_description', $product?->meta_description) }}</textarea>
+        </div>
+        <div>
+            <label class="text-sm text-slate-400">Meta Keywords</label>
+            <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $product?->meta_keywords) }}" class="input-field mt-1" placeholder="keyword1, keyword2, keyword3">
+        </div>
+    </div>
+
+    <div class="card p-6 space-y-4">
         <h3 class="font-semibold">Specifications</h3>
         <div id="specs-container" class="space-y-2">
             @php $specs = old('spec_keys') ? array_combine(old('spec_keys'), old('spec_values')) : ($product?->specifications ?? ['Material' => '', 'Dimensions' => '']); @endphp

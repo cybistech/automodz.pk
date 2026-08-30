@@ -9,7 +9,9 @@
                 </div>
             @endif
             @if($product->sale_price)
-                <span class="badge absolute left-3 top-3 bg-red-500 text-white">Sale</span>
+                <span class="badge absolute left-3 top-3 bg-red-500 text-white">
+                    @if($product->discount_percent) -{{ $product->discount_percent }}% @else Sale @endif
+                </span>
             @endif
             @if($product->is_featured)
                 <span class="badge absolute right-3 top-3 bg-orange-500 text-white">Featured</span>
