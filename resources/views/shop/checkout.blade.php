@@ -7,7 +7,25 @@
     $total = $subtotal + $shipping + $tax;
 @endphp
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-    <h1 class="text-2xl font-bold text-white">Checkout</h1>
+    <div class="flex flex-wrap items-center justify-between gap-4">
+        <h1 class="text-2xl font-bold text-white">Checkout</h1>
+        @guest
+            <div class="flex items-center gap-3 text-sm">
+                <span class="text-slate-400">Checking out as guest</span>
+                <a href="{{ route('login', ['redirect' => 'checkout']) }}" class="btn-secondary text-xs">Login</a>
+                <a href="{{ route('register') }}" class="text-orange-400 hover:text-orange-300">Register</a>
+            </div>
+        @else
+            <span class="text-sm text-green-400">Signed in as {{ auth()->user()->name }}</span>
+        @endguest
+    </div>
+
+    @guest
+        <div class="mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-sm text-blue-200">
+            <strong>Guest checkout</strong> — No account needed. You can track your order using your order number and email/phone after placing the order.
+            <a href="{{ route('orders.track') }}" class="ml-1 underline">Track order</a>
+        </div>
+    @endguest
 
     <form action="{{ route('checkout.store') }}" method="POST" class="mt-8 grid gap-8 lg:grid-cols-3">
         @csrf
@@ -81,7 +99,9 @@
                 <div class="flex justify-between"><dt class="text-slate-400">Tax</dt><dd>Rs. {{ number_format($tax) }}</dd></div>
                 <div class="flex justify-between text-lg font-bold"><dt>Total</dt><dd class="text-orange-400">Rs. {{ number_format($total) }}</dd></div>
             </dl>
-            <button type="submit" class="btn-primary mt-6 w-full">Place Order</button>
+            <button type="submit" class="btn-primary mt-6 w-full">
+                @guest Place Guest Order @else Place Order @endguest
+            </button>
         </div>
     </form>
 </div>

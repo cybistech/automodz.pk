@@ -9,6 +9,7 @@ use App\Http\Controllers\Payment\StripeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
+use App\Http\Controllers\Shop\GuestOrderController;
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\OrderController;
 use App\Http\Controllers\Shop\ProductController;
@@ -26,12 +27,15 @@ Route::delete('/cart/{productId}', [CartController::class, 'remove'])->name('car
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
 
+Route::get('/order/track', [GuestOrderController::class, 'trackForm'])->name('orders.track');
+Route::post('/order/track', [GuestOrderController::class, 'track'])->name('orders.track.submit');
+
 Route::get('/order/confirmation/{order}', [OrderController::class, 'confirmation'])->name('orders.confirmation');
 Route::get('/payment/stripe/success/{order}', [StripeController::class, 'success'])->name('payment.stripe.success');
 Route::get('/payment/stripe/cancel/{order}', [StripeController::class, 'cancel'])->name('payment.stripe.cancel');
 Route::post('/payment/jazzcash/return', [JazzCashController::class, 'return'])->name('payment.jazzcash.return');
 
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         if (auth()->user()->isAdmin()) {
             return redirect()->route('admin.dashboard');

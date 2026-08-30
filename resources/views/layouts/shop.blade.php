@@ -52,6 +52,7 @@
                     <a href="{{ route('orders.index') }}" class="hidden text-sm font-medium text-slate-300 hover:text-orange-400 sm:block">Orders</a>
                     <a href="{{ route('profile.edit') }}" class="text-sm font-medium text-slate-300 hover:text-orange-400">{{ auth()->user()->name }}</a>
                 @else
+                    <a href="{{ route('orders.track') }}" class="hidden text-sm font-medium text-slate-300 hover:text-orange-400 sm:block">Track Order</a>
                     <a href="{{ route('login') }}" class="text-sm font-medium text-slate-300 hover:text-orange-400">Login</a>
                     <a href="{{ route('register') }}" class="btn-primary hidden sm:inline-flex">Register</a>
                 @endauth

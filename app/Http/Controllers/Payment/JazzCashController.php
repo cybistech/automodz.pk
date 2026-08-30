@@ -32,12 +32,18 @@ class JazzCashController extends Controller
             $this->cart->clear();
             session(['last_order_id' => $order->id]);
 
-            return redirect()->route('orders.confirmation', $order)->with('success', 'JazzCash payment successful!');
+            return redirect()->route('orders.confirmation', [
+                'order' => $order,
+                'token' => $order->guest_token,
+            ])->with('success', 'JazzCash payment successful!');
         }
 
         $order->update(['payment_status' => 'failed', 'status' => 'cancelled']);
         $order->payment?->update(['status' => 'failed', 'gateway_response' => $response]);
 
-        return redirect()->route('orders.confirmation', $order)->with('error', 'JazzCash payment failed. Please try again.');
+        return redirect()->route('orders.confirmation', [
+            'order' => $order,
+            'token' => $order->guest_token,
+        ])->with('error', 'JazzCash payment failed. Please try again.');
     }
 }

@@ -5,6 +5,13 @@
 @section('content')
 <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="card p-6">
+        @if(!empty($isGuestConfirmation))
+            <div class="mb-6 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">
+                Your guest order was placed successfully! Save your order number <strong>{{ $order->order_number }}</strong> to track it later.
+                <a href="{{ route('orders.track') }}" class="ml-1 underline">Track order</a> ·
+                <a href="{{ route('register') }}" class="underline">Create account</a> to link this order.
+            </div>
+        @endif
         <div class="flex flex-wrap items-start justify-between gap-4">
             <div>
                 <h1 class="text-2xl font-bold text-white">Order {{ $order->order_number }}</h1>

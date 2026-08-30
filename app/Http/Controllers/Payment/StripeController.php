@@ -30,7 +30,10 @@ class StripeController extends Controller
             session(['last_order_id' => $order->id]);
         }
 
-        return redirect()->route('orders.confirmation', $order)->with('success', 'Payment successful! Thank you for your order.');
+        return redirect()->route('orders.confirmation', [
+            'order' => $order,
+            'token' => $order->guest_token,
+        ])->with('success', 'Payment successful! Thank you for your order.');
     }
 
     public function cancel(Order $order)

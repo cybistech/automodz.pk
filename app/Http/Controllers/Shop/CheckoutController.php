@@ -76,7 +76,10 @@ class CheckoutController extends Controller
             $order->update(['status' => 'confirmed']);
         }
 
-        return redirect()->route('orders.confirmation', $order)
+        return redirect()->route('orders.confirmation', [
+            'order' => $order,
+            'token' => $order->guest_token,
+        ])
             ->with('success', $method === 'cod'
                 ? 'Order placed successfully. Pay on delivery.'
                 : 'Order placed. Please complete your bank transfer and we will confirm your payment.');

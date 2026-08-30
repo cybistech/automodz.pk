@@ -4,10 +4,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\ConfirmablePasswordController;
 use App\Http\Controllers\Auth\EmailVerificationNotificationController;
 use App\Http\Controllers\Auth\EmailVerificationPromptController;
+use App\Http\Controllers\Auth\MobileAuthController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\Auth\SocialAuthController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
@@ -21,6 +23,18 @@ Route::middleware('guest')->group(function () {
         ->name('login');
 
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
+
+    Route::post('login/mobile/send', [MobileAuthController::class, 'sendOtp'])
+        ->name('login.mobile.send');
+
+    Route::post('login/mobile/verify', [MobileAuthController::class, 'verifyOtp'])
+        ->name('login.mobile.verify');
+
+    Route::get('auth/{provider}', [SocialAuthController::class, 'redirect'])
+        ->name('social.redirect');
+
+    Route::get('auth/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->name('social.callback');
 
     Route::get('forgot-password', [PasswordResetLinkController::class, 'create'])
         ->name('password.request');

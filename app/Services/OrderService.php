@@ -29,6 +29,7 @@ class OrderService
 
             $order = Order::create([
                 'order_number' => 'AP-'.strtoupper(Str::random(8)),
+                'guest_token' => Str::random(48),
                 'user_id' => auth()->id(),
                 'status' => 'pending',
                 'payment_method' => $data['payment_method'],
