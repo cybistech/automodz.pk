@@ -63,7 +63,7 @@ class ProductController extends Controller
 
         return view('shop.products.show', compact('product', 'related'))
             ->with('seo', [
-                'title' => $product->meta_title ?: $product->name.' | AutoPartsPro',
+                'title' => $product->meta_title ?: $product->name.' | '.config('site.name'),
                 'description' => $product->meta_description ?: $product->short_description,
                 'keywords' => $product->meta_keywords,
             ]);

@@ -649,7 +649,7 @@ class MotorcycleCatalogSeeder extends Seeder
 
         $lw = imagefontwidth($font) * strlen($label);
         imagestring($image, $font, (int) (($width - $lw) / 2), 620, $label, $white);
-        imagestring($image, 3, 20, 20, 'AutoPartsPro', $white);
+        imagestring($image, 3, 20, 20, 'MotoModz', $white);
 
         imagejpeg($image, $path, 90);
         imagedestroy($image);

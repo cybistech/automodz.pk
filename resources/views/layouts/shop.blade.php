@@ -4,14 +4,19 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('meta_title', trim(View::getSection('title', config('app.name')).' - Auto Parts Store'))</title>
-    <meta name="description" content="@yield('meta_description', 'Shop quality auto and motorcycle parts in Pakistan. Best prices in PKR with JazzCash, Stripe, bank transfer and COD.')">
+    <title>@yield('meta_title', trim(View::getSection('title', config('site.name')).' | '.config('site.domain')))</title>
+    <meta name="description" content="@yield('meta_description', config('site.description'))">
     @hasSection('meta_keywords')
         <meta name="keywords" content="@yield('meta_keywords')">
+    @else
+        <meta name="keywords" content="motorcycle parts Pakistan, bike accessories, moto mods, {{ config('site.domain') }}">
     @endif
-    <meta property="og:title" content="@yield('meta_title', config('app.name'))">
-    <meta property="og:description" content="@yield('meta_description', 'Shop quality auto and motorcycle parts in Pakistan.')">
+    <meta property="og:title" content="@yield('meta_title', config('site.name'))">
+    <meta property="og:description" content="@yield('meta_description', config('site.description'))">
+    <meta property="og:url" content="{{ config('site.url') }}">
+    <meta property="og:site_name" content="{{ config('site.name') }}">
     <meta property="og:type" content="website">
+    <link rel="canonical" href="{{ config('site.url') }}{{ request()->getPathInfo() }}">
     <meta name="robots" content="index, follow">
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700,800&display=swap" rel="stylesheet">
@@ -20,17 +25,13 @@
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
     <nav class="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/90 backdrop-blur-lg">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-            <a href="{{ route('home') }}" class="flex items-center gap-2">
-                <div class="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 font-bold text-white">AP</div>
-                <div>
-                    <div class="text-lg font-bold tracking-tight">AutoParts<span class="text-orange-500">Pro</span></div>
-                    <div class="text-xs text-slate-400">Quality Parts, Fast Delivery</div>
-                </div>
+            <a href="{{ route('home') }}">
+                <x-brand-logo />
             </a>
 
             <form action="{{ route('products.index') }}" class="hidden flex-1 max-w-md mx-8 md:block">
                 <div class="relative">
-                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Search parts, SKU, brand..." class="input-field pl-10">
+                    <input type="search" name="search" value="{{ request('search') }}" placeholder="Search motorcycle parts, mods, SKU..." class="input-field pl-10">
                     <svg class="absolute left-3 top-3 h-5 w-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
                 </div>
             </form>
@@ -77,13 +78,15 @@
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
             <div class="grid gap-8 md:grid-cols-4">
                 <div>
-                    <div class="text-lg font-bold">AutoParts<span class="text-orange-500">Pro</span></div>
-                    <p class="mt-2 text-sm text-slate-400">Your trusted source for quality auto parts across Pakistan.</p>
+                    <div class="text-lg font-bold">Moto<span class="text-orange-500">Modz</span></div>
+                    <p class="mt-2 text-sm text-slate-400">{{ config('site.tagline') }}</p>
+                    <p class="mt-2 text-sm text-orange-400">{{ config('site.domain') }}</p>
                 </div>
                 <div>
                     <h4 class="font-semibold text-white">Shop</h4>
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
-                        <li><a href="{{ route('products.index') }}" class="hover:text-orange-400">All Products</a></li>
+                        <li><a href="{{ route('products.index') }}" class="hover:text-orange-400">Motorcycle Parts</a></li>
+                        <li><a href="{{ route('products.index', ['sort' => 'price_low']) }}" class="hover:text-orange-400">Deals & Offers</a></li>
                         <li><a href="{{ route('cart.index') }}" class="hover:text-orange-400">Shopping Cart</a></li>
                     </ul>
                 </div>
@@ -99,14 +102,15 @@
                 <div>
                     <h4 class="font-semibold text-white">Contact</h4>
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
-                        <li>support@autopartspro.com</li>
+                        <li><a href="mailto:{{ config('site.email') }}" class="hover:text-orange-400">{{ config('site.email') }}</a></li>
+                        <li><a href="https://{{ config('site.domain') }}" class="hover:text-orange-400">{{ config('site.domain') }}</a></li>
                         <li>+92 300 1234567</li>
                         <li>Karachi, Pakistan</li>
                     </ul>
                 </div>
             </div>
             <div class="mt-8 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-                &copy; {{ date('Y') }} AutoPartsPro. All rights reserved.
+                &copy; {{ date('Y') }} {{ config('site.name') }} — {{ config('site.domain') }}. All rights reserved.
             </div>
         </div>
     </footer>

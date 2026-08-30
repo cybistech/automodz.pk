@@ -22,7 +22,7 @@ return [
 
     'bank' => [
         'name' => env('BANK_NAME', 'Meezan Bank'),
-        'account_title' => env('BANK_ACCOUNT_TITLE', 'AutoParts Pro'),
+        'account_title' => env('BANK_ACCOUNT_TITLE', 'MotoModz'),
         'account_number' => env('BANK_ACCOUNT_NUMBER', '01234567890123'),
         'iban' => env('BANK_IBAN', 'PK00MEZN0001234567890123'),
         'branch' => env('BANK_BRANCH', 'Main Branch, Karachi'),

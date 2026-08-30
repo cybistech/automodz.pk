@@ -53,7 +53,7 @@ class MobileAuthController extends Controller
         if (! $user) {
             $user = User::create([
                 'name' => $request->name ?: 'Customer '.substr($phone, -4),
-                'email' => 'mobile_'.preg_replace('/\D/', '', $phone).'@autoparts.local',
+                'email' => 'mobile_'.preg_replace('/\D/', '', $phone).'@motomodz.local',
                 'phone' => $phone,
                 'phone_verified_at' => now(),
                 'email_verified_at' => now(),

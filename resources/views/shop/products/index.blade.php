@@ -49,7 +49,7 @@
                     @if(request('search'))
                         Results for "{{ request('search') }}"
                     @else
-                        All Auto Parts
+                        All Motorcycle Parts
                     @endif
                 </h1>
                 <span class="text-sm text-slate-400">{{ $products->total() }} products</span>
