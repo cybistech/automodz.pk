@@ -25,9 +25,10 @@ Set `SKIP_GIT_PULL=1` to deploy the current checkout without pulling from git.
 
 ## Quick Start
 
-Requires MySQL 8+ with a database named `automodz`:
+Requires MySQL 8+ and Redis:
 
 ```bash
+sudo systemctl start redis-server
 mysql -u root -e "CREATE DATABASE automodz CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 composer install && npm install
 cp .env.example .env && php artisan key:generate
@@ -57,6 +58,25 @@ DB_PORT=3306
 DB_DATABASE=automodz
 DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
+
+CACHE_STORE=redis
+SESSION_DRIVER=redis
+QUEUE_CONNECTION=redis
+
+REDIS_CLIENT=predis
+REDIS_HOST=127.0.0.1
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+```
+
+Install and start Redis on the server:
+
+```bash
+sudo apt install redis-server
+sudo systemctl enable redis-server
+sudo systemctl start redis-server
+redis-cli ping   # should return PONG
 ```
 
 Create the database once on the server:

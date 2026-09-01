@@ -23,6 +23,23 @@ npm run build
 echo "==> Running database migrations..."
 php artisan migrate --force
 
+echo "==> Ensuring Redis is running..."
+if command -v redis-cli >/dev/null 2>&1; then
+    if ! redis-cli ping >/dev/null 2>&1; then
+        if command -v systemctl >/dev/null 2>&1; then
+            sudo systemctl start redis-server || sudo systemctl start redis || true
+        else
+            sudo service redis-server start || sudo service redis start || true
+        fi
+    fi
+
+    if redis-cli ping >/dev/null 2>&1; then
+        echo "Redis is ready."
+    else
+        echo "WARNING: Redis is not responding. Cache and sessions may fail until Redis is started."
+    fi
+fi
+
 echo "==> Optimizing application..."
 php artisan optimize
 

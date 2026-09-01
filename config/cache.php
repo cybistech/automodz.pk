@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_STORE', 'file'),
+    'default' => env('CACHE_STORE', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -100,8 +100,8 @@ return [
         'failover' => [
             'driver' => 'failover',
             'stores' => [
-                'database',
-                'array',
+                'redis',
+                'file',
             ],
         ],
 
