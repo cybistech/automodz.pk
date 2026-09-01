@@ -19,7 +19,7 @@
                     <div class="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                         <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-900">
                             @if($item['image'])
-                                <img src="{{ asset('storage/'.$item['image']) }}" alt="" class="h-full w-full object-cover">
+                                <img src="{{ asset('storage/'.$item['image']) }}" alt="" width="80" height="80" loading="lazy" decoding="async" class="h-full w-full object-cover">
                             @endif
                         </div>
                         <div class="flex-1">

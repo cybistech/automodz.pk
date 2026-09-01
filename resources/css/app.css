@@ -2,24 +2,49 @@
 @tailwind components;
 @tailwind utilities;
 
+@layer base {
+    html {
+        scroll-behavior: smooth;
+    }
+}
+
 @layer components {
     .btn-primary {
-        @apply inline-flex items-center justify-center rounded-lg bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2;
+        @apply inline-flex items-center justify-center rounded-xl bg-brand-gradient px-5 py-2.5 text-sm font-bold text-white shadow-brand transition hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 focus:ring-offset-slate-950;
     }
 
     .btn-secondary {
-        @apply inline-flex items-center justify-center rounded-lg border border-slate-600 bg-slate-800 px-5 py-2.5 text-sm font-semibold text-slate-100 transition hover:bg-slate-700;
+        @apply inline-flex items-center justify-center rounded-xl border border-slate-600/80 bg-slate-900/80 px-5 py-2.5 text-sm font-semibold text-slate-100 backdrop-blur transition hover:border-orange-500/40 hover:bg-slate-800;
     }
 
     .card {
-        @apply rounded-2xl border border-slate-700/50 bg-slate-800/60 shadow-xl backdrop-blur;
+        @apply rounded-2xl border border-slate-700/50 bg-slate-900/70 shadow-xl backdrop-blur;
+    }
+
+    .card-hover {
+        @apply card transition duration-300 hover:-translate-y-1 hover:border-orange-500/40 hover:shadow-brand;
     }
 
     .input-field {
-        @apply w-full rounded-lg border border-slate-600 bg-slate-900 px-4 py-2.5 text-slate-100 placeholder-slate-400 focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500;
+        @apply w-full rounded-xl border border-slate-600 bg-slate-950/80 px-4 py-2.5 text-slate-100 placeholder-slate-500 transition focus:border-orange-500 focus:outline-none focus:ring-1 focus:ring-orange-500;
     }
 
     .badge {
-        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+        @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold;
+    }
+
+    .section-title {
+        @apply font-display text-3xl font-bold tracking-tight text-white sm:text-4xl;
+    }
+
+    .brand-text {
+        @apply bg-brand-gradient bg-clip-text text-transparent;
+    }
+
+    .hero-grid {
+        background-image:
+            linear-gradient(rgba(249, 115, 22, 0.04) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(249, 115, 22, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
     }
 }

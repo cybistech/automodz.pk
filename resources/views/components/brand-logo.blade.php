@@ -1,18 +1,23 @@
-@props(['size' => 'md'])
+@props(['size' => 'md', 'showTagline' => true])
 
 @php
     $sizes = [
-        'sm' => ['box' => 'h-8 w-8 text-sm', 'title' => 'text-base', 'sub' => 'text-[10px]'],
-        'md' => ['box' => 'h-10 w-10 text-base', 'title' => 'text-lg', 'sub' => 'text-xs'],
-        'lg' => ['box' => 'h-12 w-12 text-lg', 'title' => 'text-xl', 'sub' => 'text-xs'],
+        'sm' => ['icon' => 'h-8 w-8', 'title' => 'text-base', 'domain' => 'text-[10px]', 'sub' => 'text-[10px]'],
+        'md' => ['icon' => 'h-10 w-10', 'title' => 'text-xl', 'domain' => 'text-xs', 'sub' => 'text-xs'],
+        'lg' => ['icon' => 'h-14 w-14', 'title' => 'text-2xl', 'domain' => 'text-sm', 'sub' => 'text-sm'],
+        'xl' => ['icon' => 'h-20 w-20', 'title' => 'text-4xl', 'domain' => 'text-base', 'sub' => 'text-base'],
     ];
     $s = $sizes[$size] ?? $sizes['md'];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'flex items-center gap-2']) }}>
-    <div class="flex {{ $s['box'] }} items-center justify-center rounded-xl bg-gradient-to-br from-orange-500 to-red-600 font-bold text-white">MM</div>
-    <div>
-        <div class="{{ $s['title'] }} font-bold tracking-tight">Moto<span class="text-orange-500">Modz</span></div>
-        <div class="{{ $s['sub'] }} text-slate-400">{{ config('site.tagline') }}</div>
+<div {{ $attributes->merge(['class' => 'flex items-center gap-3']) }}>
+    <x-logo-icon :class="$s['icon'] . ' shrink-0'" />
+    <div class="min-w-0">
+        <div class="{{ $s['title'] }} font-extrabold tracking-tight leading-none">
+            <span class="text-white">Auto</span><span class="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">Modz</span><span class="font-semibold text-slate-500">.pk</span>
+        </div>
+        @if($showTagline)
+            <div class="{{ $s['sub'] }} mt-0.5 font-medium text-slate-400">{{ config('site.tagline') }}</div>
+        @endif
     </div>
 </div>

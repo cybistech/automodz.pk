@@ -1,6 +1,6 @@
 <x-guest-layout>
-    <h2 class="text-center text-xl font-bold text-white">Welcome to MotoModz</h2>
-    <p class="mt-1 text-center text-sm text-slate-400">Sign in to track your motorcycle parts orders</p>
+    <h2 class="text-center font-display text-xl font-bold text-white">Welcome to {{ config('site.name') }}</h2>
+    <p class="mt-1 text-center text-sm text-slate-400">Sign in to track your orders at {{ config('site.domain') }}</p>
 
     @if(session('status'))
         <div class="mt-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-sm text-green-300">{{ session('status') }}</div>

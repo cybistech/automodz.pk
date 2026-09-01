@@ -35,7 +35,7 @@ class SocialAuthController extends Controller
         if ($account) {
             $user = $account->user;
         } else {
-            $email = $socialUser->getEmail() ?: $provider.'_'.$socialUser->getId().'@social.motomodz.local';
+            $email = $socialUser->getEmail() ?: $provider.'_'.$socialUser->getId().'@social.automodz.local';
 
             $user = User::where('email', $email)->first();
 

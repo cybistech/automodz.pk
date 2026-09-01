@@ -13,9 +13,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         User::updateOrCreate(
-            ['email' => 'admin@motomodz.pk'],
+            ['email' => 'admin@automodz.pk'],
             [
-                'name' => 'MotoModz Admin',
+                'name' => 'AutoModz Admin',
                 'password' => Hash::make('password'),
                 'is_admin' => true,
                 'phone' => '+923001234567',
@@ -25,7 +25,7 @@ class DatabaseSeeder extends Seeder
         );
 
         User::updateOrCreate(
-            ['email' => 'customer@motomodz.pk'],
+            ['email' => 'customer@automodz.pk'],
             [
                 'name' => 'Demo Rider',
                 'password' => Hash::make('password'),

@@ -1,11 +1,20 @@
-<div class="card group overflow-hidden transition hover:border-orange-500/50 hover:shadow-orange-500/10">
+@props(['lazy' => true])
+
+<div class="card-hover group overflow-hidden">
     <a href="{{ route('products.show', $product->slug) }}" class="block">
         <div class="relative aspect-square overflow-hidden bg-slate-900">
             @if($product->primary_image)
-                <img src="{{ asset('storage/'.$product->primary_image) }}" alt="{{ $product->name }}" class="h-full w-full object-cover transition group-hover:scale-105">
+                <img
+                    src="{{ asset('storage/'.$product->primary_image) }}"
+                    alt="{{ $product->name }}"
+                    width="400"
+                    height="400"
+                    @if($lazy) loading="lazy" decoding="async" @else fetchpriority="high" @endif
+                    class="h-full w-full object-cover transition group-hover:scale-105"
+                >
             @else
                 <div class="flex h-full items-center justify-center text-slate-600">
-                    <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <svg class="h-16 w-16" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                 </div>
             @endif
             @if($product->sale_price)

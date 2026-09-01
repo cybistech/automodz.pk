@@ -6,14 +6,20 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Admin') - {{ config('site.name') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
-    <link href="https://fonts.bunny.net/css?family=inter:400,500,600,700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:400,600,700|rajdhani:700&display=swap" media="print" onload="this.media='all'">
+    <noscript><link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:400,600,700|rajdhani:700&display=swap"></noscript>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
     <div class="flex min-h-screen">
         <aside class="hidden w-64 flex-shrink-0 border-r border-slate-800 bg-slate-900 lg:block">
             <div class="p-6">
-                <a href="{{ route('admin.dashboard') }}" class="text-xl font-bold">Moto<span class="text-orange-500">Modz</span> <span class="text-sm text-slate-400">Admin</span></a>
+                <a href="{{ route('admin.dashboard') }}">
+                    <x-brand-logo size="sm" :show-tagline="false" />
+                    <span class="mt-1 block text-xs font-medium text-slate-500">Admin Panel</span>
+                </a>
             </div>
             <nav class="space-y-1 px-4">
                 <a href="{{ route('admin.dashboard') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.dashboard') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Dashboard</a>

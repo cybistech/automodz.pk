@@ -29,7 +29,7 @@ class JazzCashPaymentService
             'pp_TxnCurrency' => 'PKR',
             'pp_TxnDateTime' => $txnDateTime,
             'pp_BillReference' => 'billRef'.$order->id,
-            'pp_Description' => 'MotoModz Order '.$order->order_number,
+            'pp_Description' => 'AutoModz Order '.$order->order_number,
             'pp_TxnExpiryDateTime' => $expiry,
             'pp_ReturnURL' => $config['return_url'] ?: route('payment.jazzcash.return'),
             'pp_SecureHash' => '',

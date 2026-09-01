@@ -25,12 +25,15 @@ class CheckoutController extends Controller
         }
 
         $user = auth()->user();
+        $items = $this->cart->items();
+        $subtotal = (float) $items->sum('total');
+        $shipping = $subtotal >= 10000 ? 0 : 500;
 
         return view('shop.checkout', [
-            'items' => $this->cart->items(),
-            'subtotal' => $this->cart->subtotal(),
-            'shipping' => $this->cart->subtotal() >= 10000 ? 0 : 500,
-            'tax' => round($this->cart->subtotal() * 0.05, 2),
+            'items' => $items,
+            'subtotal' => $subtotal,
+            'shipping' => $shipping,
+            'tax' => round($subtotal * 0.05, 2),
             'paymentMethods' => config('payments.methods'),
             'bank' => config('payments.bank'),
             'user' => $user,

@@ -1,10 +1,10 @@
 <?php
 
 return [
-    'name' => env('SITE_NAME', 'MotoModz'),
-    'domain' => env('SITE_DOMAIN', 'motomodz.pk'),
-    'url' => env('SITE_URL', env('APP_URL', 'https://motomodz.pk')),
-    'email' => env('SITE_EMAIL', 'support@motomodz.pk'),
-    'tagline' => 'Pakistan\'s #1 Motorcycle Parts & Accessories Store',
-    'description' => 'Shop motorcycle parts, mods, lights, mirrors, and accessories at motomodz.pk. Fast delivery across Pakistan with JazzCash, Stripe, bank transfer & COD.',
+    'name' => env('SITE_NAME', 'AutoModz'),
+    'domain' => env('SITE_DOMAIN', 'automodz.pk'),
+    'url' => env('SITE_URL', env('APP_URL', 'https://automodz.pk')),
+    'email' => env('SITE_EMAIL', 'info@automodz.pk'),
+    'tagline' => 'Premium Auto & Motorcycle Mods',
+    'description' => 'Shop premium auto and motorcycle parts, performance mods, lights, mirrors, and accessories at automodz.pk. Fast nationwide delivery across Pakistan with JazzCash, card, bank transfer & COD.',
 ];

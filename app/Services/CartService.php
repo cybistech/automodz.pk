@@ -9,31 +9,53 @@ class CartService
 {
     private const SESSION_KEY = 'cart';
 
+    private ?Collection $resolvedItems = null;
+
     public function items(): Collection
     {
+        if ($this->resolvedItems !== null) {
+            return $this->resolvedItems;
+        }
+
         $cart = session(self::SESSION_KEY, []);
 
-        return collect($cart)->map(function (array $item) {
-            $product = Product::find($item['product_id']);
+        if ($cart === []) {
+            return $this->resolvedItems = collect();
+        }
 
-            if (! $product || ! $product->is_active) {
-                return null;
-            }
+        $products = Product::query()
+            ->active()
+            ->forListing()
+            ->whereIn('id', collect($cart)->pluck('product_id')->unique())
+            ->get()
+            ->keyBy('id');
 
-            $price = $product->effective_price;
-            $quantity = min($item['quantity'], max($product->stock, 1));
+        $this->resolvedItems = collect($cart)
+            ->map(function (array $item) use ($products) {
+                $product = $products->get($item['product_id']);
 
-            return [
-                'product_id' => $product->id,
-                'product' => $product,
-                'name' => $product->name,
-                'sku' => $product->sku,
-                'price' => $price,
-                'quantity' => $quantity,
-                'total' => $price * $quantity,
-                'image' => $product->primary_image,
-            ];
-        })->filter()->values();
+                if (! $product) {
+                    return null;
+                }
+
+                $price = $product->effective_price;
+                $quantity = min($item['quantity'], max($product->stock, 1));
+
+                return [
+                    'product_id' => $product->id,
+                    'product' => $product,
+                    'name' => $product->name,
+                    'sku' => $product->sku,
+                    'price' => $price,
+                    'quantity' => $quantity,
+                    'total' => $price * $quantity,
+                    'image' => $product->primary_image,
+                ];
+            })
+            ->filter()
+            ->values();
+
+        return $this->resolvedItems;
     }
 
     public function add(int $productId, int $quantity = 1): void
@@ -57,6 +79,7 @@ class CartService
         }
 
         session([self::SESSION_KEY => $cart]);
+        $this->forgetResolvedItems();
     }
 
     public function update(int $productId, int $quantity): void
@@ -77,6 +100,7 @@ class CartService
         }
 
         session([self::SESSION_KEY => $cart]);
+        $this->forgetResolvedItems();
     }
 
     public function remove(int $productId): void
@@ -87,16 +111,18 @@ class CartService
             ->all();
 
         session([self::SESSION_KEY => $cart]);
+        $this->forgetResolvedItems();
     }
 
     public function clear(): void
     {
         session()->forget(self::SESSION_KEY);
+        $this->forgetResolvedItems();
     }
 
     public function count(): int
     {
-        return $this->items()->sum('quantity');
+        return (int) collect(session(self::SESSION_KEY, []))->sum('quantity');
     }
 
     public function subtotal(): float
@@ -106,6 +132,11 @@ class CartService
 
     public function isEmpty(): bool
     {
-        return $this->items()->isEmpty();
+        return collect(session(self::SESSION_KEY, []))->isEmpty();
+    }
+
+    private function forgetResolvedItems(): void
+    {
+        $this->resolvedItems = null;
     }
 }

@@ -6,15 +6,23 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Product::active()->with('category');
+        $query = Product::active()->forListing()->with('category:id,name,slug');
 
         if ($request->filled('category')) {
-            $query->whereHas('category', fn ($q) => $q->where('slug', $request->category));
+            $categoryId = Category::query()
+                ->where('slug', $request->category)
+                ->where('is_active', true)
+                ->value('id');
+
+            if ($categoryId) {
+                $query->where('category_id', $categoryId);
+            }
         }
 
         if ($request->filled('search')) {
@@ -44,18 +52,32 @@ class ProductController extends Controller
         };
 
         $products = $query->paginate(12)->withQueryString();
-        $categories = Category::where('is_active', true)->orderBy('sort_order')->get();
-        $brands = Product::active()->whereNotNull('brand')->distinct()->orderBy('brand')->pluck('brand');
+        $categories = Cache::remember('shop.categories', now()->addHour(), fn () => Category::query()
+            ->where('is_active', true)
+            ->orderBy('sort_order')
+            ->select(['id', 'name', 'slug'])
+            ->get());
+        $brands = Cache::remember('shop.brands', now()->addHour(), fn () => Product::active()
+            ->whereNotNull('brand')
+            ->distinct()
+            ->orderBy('brand')
+            ->pluck('brand'));
 
         return view('shop.products.index', compact('products', 'categories', 'brands'));
     }
 
     public function show(string $slug)
     {
-        $product = Product::active()->with('category')->where('slug', $slug)->firstOrFail();
-        $product->increment('views');
+        $product = Product::active()->with('category:id,name,slug')->where('slug', $slug)->firstOrFail();
+
+        $viewKey = 'viewed_product_'.$product->id;
+        if (! session()->has($viewKey)) {
+            $product->increment('views');
+            session([$viewKey => true]);
+        }
 
         $related = Product::active()
+            ->forListing()
             ->where('category_id', $product->category_id)
             ->where('id', '!=', $product->id)
             ->take(4)

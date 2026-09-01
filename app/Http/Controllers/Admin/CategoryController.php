@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Category;
+use App\Support\ShopCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -40,6 +41,7 @@ class CategoryController extends Controller
         }
 
         Category::create($data);
+        ShopCache::flush();
 
         return redirect()->route('admin.categories.index')->with('success', 'Category created.');
     }
@@ -70,6 +72,7 @@ class CategoryController extends Controller
         }
 
         $category->update($data);
+        ShopCache::flush();
 
         return redirect()->route('admin.categories.index')->with('success', 'Category updated.');
     }
@@ -81,6 +84,7 @@ class CategoryController extends Controller
         }
 
         $category->delete();
+        ShopCache::flush();
 
         return redirect()->route('admin.categories.index')->with('success', 'Category deleted.');
     }

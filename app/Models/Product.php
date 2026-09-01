@@ -113,6 +113,25 @@ class Product extends Model
         return $query->whereNotNull('sale_price')->whereColumn('sale_price', '<', 'price');
     }
 
+    public function scopeForListing($query)
+    {
+        return $query->select([
+            'id',
+            'category_id',
+            'name',
+            'slug',
+            'sku',
+            'brand',
+            'price',
+            'sale_price',
+            'stock',
+            'images',
+            'is_featured',
+            'is_active',
+            'created_at',
+        ]);
+    }
+
     public function getDiscountPercentAttribute(): ?int
     {
         if (! $this->sale_price || $this->sale_price >= $this->price) {

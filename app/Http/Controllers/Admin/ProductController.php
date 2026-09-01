@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\ShopCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -46,6 +47,7 @@ class ProductController extends Controller
         $data['specifications'] = $this->parseSpecifications($request);
 
         Product::create($data);
+        ShopCache::flush();
 
         return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
     }
@@ -81,6 +83,7 @@ class ProductController extends Controller
         }
 
         $product->update($data);
+        ShopCache::flush();
 
         return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
     }
@@ -96,6 +99,7 @@ class ProductController extends Controller
         }
 
         $product->delete();
+        ShopCache::flush();
 
         return redirect()->route('admin.products.index')->with('success', 'Product deleted.');
     }
