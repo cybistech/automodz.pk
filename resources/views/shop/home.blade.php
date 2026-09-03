@@ -48,8 +48,8 @@
             <div class="relative">
                 <div class="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 p-8 shadow-brand">
                     <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_55%)]"></div>
-                    <div class="relative flex flex-col items-center text-center">
-                        <x-brand-logo size="xl" :show-tagline="false" class="justify-center" />
+                    <div class="relative flex flex-col items-center overflow-visible text-center">
+                        <x-brand-logo size="xl" :show-tagline="false" class="items-center" />
                         <p class="mt-6 font-display text-2xl font-bold text-white">Built for Riders & Drivers</p>
                         <p class="mt-2 text-slate-400">Lights · Mirrors · DRL · Holders · Performance</p>
                         <div class="mt-8 grid w-full grid-cols-2 gap-3 text-left">

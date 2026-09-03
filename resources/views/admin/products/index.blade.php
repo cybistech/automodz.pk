@@ -30,7 +30,7 @@
                     <td class="px-4 py-3">
                         <div class="flex items-center gap-3">
                             @if($product->primary_image)
-                                <img src="{{ asset('storage/'.$product->primary_image) }}" class="h-10 w-10 rounded object-cover">
+                                <img src="{{ $product->imageUrl() }}" class="h-10 w-10 rounded object-cover">
                             @endif
                             <span class="font-medium">{{ $product->name }}</span>
                         </div>

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Support\StorageUrl;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Str;
@@ -44,5 +45,10 @@ class Category extends Model
     public function activeProducts(): HasMany
     {
         return $this->hasMany(Product::class)->where('is_active', true);
+    }
+
+    public function imageUrl(): ?string
+    {
+        return StorageUrl::public($this->image);
     }
 }

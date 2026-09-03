@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Models\ShippingCity;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\OtpService;
@@ -25,6 +26,7 @@ class GuestCheckoutTest extends TestCase
     public function test_guest_can_place_cod_order(): void
     {
         $product = $this->createProduct();
+        $city = $this->createShippingCity();
 
         $this->post(route('cart.add', $product), ['quantity' => 1]);
 
@@ -33,7 +35,7 @@ class GuestCheckoutTest extends TestCase
             'customer_email' => 'guest@example.com',
             'customer_phone' => '03001234567',
             'shipping_address' => '123 Test Street',
-            'shipping_city' => 'Karachi',
+            'shipping_city_id' => $city->id,
             'payment_method' => 'cod',
         ]);
 
@@ -41,12 +43,17 @@ class GuestCheckoutTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'customer_email' => 'guest@example.com',
             'user_id' => null,
+            'shipping_city' => 'Karachi',
+            'tax' => 0,
+            'shipping' => 250,
         ]);
     }
 
     public function test_guest_can_track_order(): void
     {
         $product = $this->createProduct();
+        $city = $this->createShippingCity();
+
         $this->post(route('cart.add', $product), ['quantity' => 1]);
 
         $this->post(route('checkout.store'), [
@@ -54,7 +61,7 @@ class GuestCheckoutTest extends TestCase
             'customer_email' => 'guest@example.com',
             'customer_phone' => '03001234567',
             'shipping_address' => '123 Test Street',
-            'shipping_city' => 'Karachi',
+            'shipping_city_id' => $city->id,
             'payment_method' => 'cod',
         ]);
 
@@ -92,6 +99,14 @@ class GuestCheckoutTest extends TestCase
     public function test_login_links_previous_guest_orders(): void
     {
         $product = $this->createProduct();
+        $lahore = ShippingCity::create([
+            'name' => 'Lahore',
+            'distance_km' => 1200,
+            'base_fee' => 350,
+            'rate_per_km' => 0,
+            'is_active' => true,
+        ]);
+
         $this->post(route('cart.add', $product), ['quantity' => 1]);
 
         $this->post(route('checkout.store'), [
@@ -99,7 +114,7 @@ class GuestCheckoutTest extends TestCase
             'customer_email' => 'linkme@example.com',
             'customer_phone' => '03009998877',
             'shipping_address' => '123 Test Street',
-            'shipping_city' => 'Lahore',
+            'shipping_city_id' => $lahore->id,
             'payment_method' => 'cod',
         ]);
 
@@ -116,6 +131,7 @@ class GuestCheckoutTest extends TestCase
         $this->assertDatabaseHas('orders', [
             'customer_email' => 'linkme@example.com',
             'user_id' => $user->id,
+            'shipping_city' => 'Lahore',
         ]);
     }
 
@@ -135,6 +151,17 @@ class GuestCheckoutTest extends TestCase
             'price' => 1000,
             'stock' => 10,
             'condition' => 'new',
+            'is_active' => true,
+        ]);
+    }
+
+    private function createShippingCity(): ShippingCity
+    {
+        return ShippingCity::create([
+            'name' => 'Karachi',
+            'distance_km' => 0,
+            'base_fee' => 250,
+            'rate_per_km' => 0,
             'is_active' => true,
         ]);
     }

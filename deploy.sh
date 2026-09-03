@@ -47,7 +47,7 @@ echo "==> Optimizing application..."
 php artisan optimize
 
 echo "==> Ensuring upload directory exists..."
-mkdir -p storage/app/public
+mkdir -p storage/app/public/products storage/app/public/categories
 
 echo "==> Restarting queue workers..."
 php artisan queue:restart || true

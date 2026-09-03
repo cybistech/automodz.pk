@@ -48,6 +48,7 @@ class DatabaseSeeder extends Seeder
         Product::whereHas('category', fn ($q) => $q->where('is_active', false))
             ->update(['is_active' => false]);
 
+        $this->call(ShippingCitySeeder::class);
         $this->call(MotorcycleCatalogSeeder::class);
     }
 }

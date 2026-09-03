@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Services\ImageOptimizer;
 use App\Support\ShopCache;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -12,6 +13,7 @@ use Illuminate\Support\Str;
 
 class ProductController extends Controller
 {
+    public function __construct(private ImageOptimizer $imageOptimizer) {}
     public function index(Request $request)
     {
         $query = Product::with('category')->latest();
@@ -133,7 +135,7 @@ class ProductController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
             'meta_keywords' => 'nullable|string|max:500',
-            'images.*' => 'nullable|image|max:4096',
+            'images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:4096',
             'video_file' => 'nullable|mimes:mp4,webm,mov|max:51200',
         ]);
     }
@@ -146,7 +148,7 @@ class ProductController extends Controller
 
         $paths = [];
         foreach ($request->file('images') as $image) {
-            $paths[] = $image->store('products', 'public');
+            $paths[] = $this->imageOptimizer->storePublicImage($image, 'products');
         }
 
         return $paths;

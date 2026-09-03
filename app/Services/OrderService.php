@@ -11,7 +11,10 @@ use Illuminate\Support\Str;
 
 class OrderService
 {
-    public function __construct(private CartService $cart) {}
+    public function __construct(
+        private CartService $cart,
+        private ShippingService $shipping,
+    ) {}
 
     public function createFromCart(array $data): Order
     {
@@ -23,9 +26,8 @@ class OrderService
             }
 
             $subtotal = $this->cart->subtotal();
-            $shipping = $subtotal >= 10000 ? 0 : 500;
-            $tax = round($subtotal * 0.05, 2);
-            $total = $subtotal + $shipping + $tax;
+            $city = $this->shipping->resolveCity((int) $data['shipping_city_id']);
+            $quote = $this->shipping->quote($subtotal, $city);
 
             $order = Order::create([
                 'order_number' => 'AP-'.strtoupper(Str::random(8)),
@@ -34,16 +36,16 @@ class OrderService
                 'status' => 'pending',
                 'payment_method' => $data['payment_method'],
                 'payment_status' => 'pending',
-                'subtotal' => $subtotal,
-                'shipping' => $shipping,
-                'tax' => $tax,
-                'total' => $total,
+                'subtotal' => $quote['subtotal'],
+                'shipping' => $quote['shipping'],
+                'tax' => 0,
+                'total' => $quote['total'],
                 'currency' => config('payments.currency', 'PKR'),
                 'customer_name' => $data['customer_name'],
                 'customer_email' => $data['customer_email'],
                 'customer_phone' => $data['customer_phone'],
                 'shipping_address' => $data['shipping_address'],
-                'shipping_city' => $data['shipping_city'],
+                'shipping_city' => $city->name,
                 'notes' => $data['notes'] ?? null,
                 'bank_reference' => $data['bank_reference'] ?? null,
             ]);
@@ -66,7 +68,7 @@ class OrderService
                 'order_id' => $order->id,
                 'method' => $data['payment_method'],
                 'status' => 'pending',
-                'amount' => $total,
+                'amount' => $quote['total'],
                 'currency' => $order->currency,
             ]);
 

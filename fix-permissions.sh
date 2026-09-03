@@ -10,6 +10,8 @@ WEB_GROUP="${WEB_GROUP:-$(id -gn)}"
 echo "==> Fixing permissions for ${WEB_USER}:${WEB_GROUP}..."
 
 mkdir -p \
+    storage/app/public/products \
+    storage/app/public/categories \
     storage/framework/cache/data \
     storage/framework/sessions \
     storage/framework/views \

@@ -7,6 +7,7 @@ use App\Services\CartService;
 use App\Services\OrderService;
 use App\Services\Payments\JazzCashPaymentService;
 use App\Services\Payments\StripePaymentService;
+use App\Services\ShippingService;
 use Illuminate\Http\Request;
 
 class CheckoutController extends Controller
@@ -14,6 +15,7 @@ class CheckoutController extends Controller
     public function __construct(
         private CartService $cart,
         private OrderService $orderService,
+        private ShippingService $shipping,
         private StripePaymentService $stripe,
         private JazzCashPaymentService $jazzCash,
     ) {}
@@ -26,14 +28,24 @@ class CheckoutController extends Controller
 
         $user = auth()->user();
         $items = $this->cart->items();
-        $subtotal = (float) $items->sum('total');
-        $shipping = $subtotal >= 10000 ? 0 : 500;
+        $subtotal = $this->cart->subtotal();
+        $shippingCities = $this->shipping->activeCities();
+
+        if ($shippingCities->isEmpty()) {
+            return redirect()->route('cart.index')
+                ->with('error', 'Shipping is not available right now. Please try again later.');
+        }
+
+        $selectedCityId = (int) old('shipping_city_id', $shippingCities->first()->id);
+        $quote = $this->shipping->quote($subtotal, $selectedCityId);
 
         return view('shop.checkout', [
             'items' => $items,
-            'subtotal' => $subtotal,
-            'shipping' => $shipping,
-            'tax' => round($subtotal * 0.05, 2),
+            'subtotal' => $quote['subtotal'],
+            'shipping' => $quote['shipping'],
+            'total' => $quote['total'],
+            'shippingCities' => $shippingCities,
+            'selectedCityId' => $selectedCityId,
             'paymentMethods' => config('payments.methods'),
             'bank' => config('payments.bank'),
             'user' => $user,
@@ -51,7 +63,7 @@ class CheckoutController extends Controller
             'customer_email' => 'required|email|max:255',
             'customer_phone' => 'required|string|max:20',
             'shipping_address' => 'required|string|max:500',
-            'shipping_city' => 'required|string|max:100',
+            'shipping_city_id' => 'required|exists:shipping_cities,id',
             'payment_method' => 'required|in:stripe,jazzcash,bank_transfer,cod',
             'notes' => 'nullable|string|max:500',
             'bank_reference' => 'nullable|string|max:100',

@@ -1,13 +1,15 @@
-<svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
     <defs>
-        <linearGradient id="g" x1="8" y1="4" x2="56" y2="60" gradientUnits="userSpaceOnUse">
+        <linearGradient id="g" x1="12" y1="8" x2="60" y2="64" gradientUnits="userSpaceOnUse">
             <stop stop-color="#FBBF24"/>
             <stop offset="0.5" stop-color="#F97316"/>
-            <stop offset="1" stop-color="#EF4444"/>
+            <stop offset="1" stop-color="#EA580C"/>
         </linearGradient>
     </defs>
-    <rect width="64" height="64" rx="16" fill="#0F172A"/>
-    <path d="M14 42L22 18H28L36 42H31L29.5 37H20.5L19 42H14ZM21.5 33H28.5L25 22.5L21.5 33Z" fill="url(#g)"/>
-    <path d="M38 18H43L50 30V18H55V42H50L43 30V42H38V18Z" fill="url(#g)"/>
-    <path d="M46 8L58 20" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/>
+    <rect x="6" y="6" width="60" height="60" rx="14" fill="#0B1220"/>
+    <rect x="6.5" y="6.5" width="59" height="59" rx="13.5" stroke="url(#g)" stroke-opacity="0.5"/>
+    <path d="M16 50L24 26H29L37 50H32.5L31 45H22L20.5 50H16ZM23 40H30L26.5 29.5L23 40Z" fill="url(#g)"/>
+    <path d="M39 50V26H43L47 38L51 26H55V50H51V34L47 46L43 34V50H39Z" fill="url(#g)"/>
+    <path d="M44 14L56 26" stroke="url(#g)" stroke-width="2.5" stroke-linecap="round"/>
+    <path d="M48 14L58 24" stroke="url(#g)" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
 </svg>

@@ -16,7 +16,7 @@
     <div class="flex min-h-screen">
         <aside class="hidden w-64 flex-shrink-0 border-r border-slate-800 bg-slate-900 lg:block">
             <div class="p-6">
-                <a href="{{ route('admin.dashboard') }}">
+                <a href="{{ route('admin.dashboard') }}" class="inline-flex shrink-0 overflow-visible">
                     <x-brand-logo size="sm" :show-tagline="false" />
                     <span class="mt-1 block text-xs font-medium text-slate-500">Admin Panel</span>
                 </a>
@@ -25,6 +25,7 @@
                 <a href="{{ route('admin.dashboard') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.dashboard') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Dashboard</a>
                 <a href="{{ route('admin.products.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.products.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Products</a>
                 <a href="{{ route('admin.categories.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.categories.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Categories</a>
+                <a href="{{ route('admin.shipping-cities.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.shipping-cities.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Shipping</a>
                 <a href="{{ route('admin.orders.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.orders.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Orders</a>
                 <a href="{{ route('home') }}" class="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-slate-800">View Store</a>
             </nav>

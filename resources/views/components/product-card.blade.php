@@ -6,7 +6,7 @@
         <div class="relative aspect-square overflow-hidden bg-slate-900">
             @if($product->primary_image)
                 <img
-                    src="{{ asset('storage/'.$product->primary_image) }}"
+                    src="{{ $product->imageUrl() }}"
                     alt="{{ $product->name }}"
                     width="400"
                     height="400"

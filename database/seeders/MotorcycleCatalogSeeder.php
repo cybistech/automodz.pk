@@ -608,7 +608,7 @@ class MotorcycleCatalogSeeder extends Seeder
         $labels = ['Main View', 'Detail View', 'Package View'];
 
         foreach ($labels as $index => $label) {
-            $filename = "products/{$slug}-{$index}.jpg";
+            $filename = "products/{$slug}-{$index}.webp";
             $this->createProductImage(
                 Storage::disk('public')->path($filename),
                 $name,
@@ -651,7 +651,7 @@ class MotorcycleCatalogSeeder extends Seeder
         imagestring($image, $font, (int) (($width - $lw) / 2), 620, $label, $white);
         imagestring($image, 3, 20, 20, 'AutoModz', $white);
 
-        imagejpeg($image, $path, 90);
+        imagewebp($image, $path, 85);
         imagedestroy($image);
     }
 

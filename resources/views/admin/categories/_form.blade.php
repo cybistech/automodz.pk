@@ -12,7 +12,7 @@
         <label class="text-sm text-slate-400">Image</label>
         <input type="file" name="image" accept="image/*" class="mt-1 text-sm text-slate-400">
         @if($category?->image)
-            <img src="{{ asset('storage/'.$category->image) }}" alt="" class="mt-2 h-20 rounded-lg">
+            <img src="{{ $category->imageUrl() }}" alt="" class="mt-2 h-20 rounded-lg">
         @endif
     </div>
     <div>

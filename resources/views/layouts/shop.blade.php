@@ -27,7 +27,7 @@
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
     <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-            <a href="{{ route('home') }}" aria-label="{{ config('site.name') }} home">
+            <a href="{{ route('home') }}" class="inline-flex shrink-0 overflow-visible py-0.5" aria-label="{{ config('site.name') }} home">
                 <x-brand-logo size="md" :show-tagline="false" />
             </a>
 

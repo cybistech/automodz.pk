@@ -1,23 +1,34 @@
-@props(['size' => 'md', 'showTagline' => true])
+@props(['size' => 'md', 'showTagline' => true, 'iconOnly' => false])
 
 @php
-    $sizes = [
-        'sm' => ['icon' => 'h-8 w-8', 'title' => 'text-base', 'domain' => 'text-[10px]', 'sub' => 'text-[10px]'],
-        'md' => ['icon' => 'h-10 w-10', 'title' => 'text-xl', 'domain' => 'text-xs', 'sub' => 'text-xs'],
-        'lg' => ['icon' => 'h-14 w-14', 'title' => 'text-2xl', 'domain' => 'text-sm', 'sub' => 'text-sm'],
-        'xl' => ['icon' => 'h-20 w-20', 'title' => 'text-4xl', 'domain' => 'text-base', 'sub' => 'text-base'],
+    $heights = [
+        'xs' => 'h-7',
+        'sm' => 'h-9',
+        'md' => 'h-11',
+        'lg' => 'h-14',
+        'xl' => 'h-20',
     ];
-    $s = $sizes[$size] ?? $sizes['md'];
+    $taglines = [
+        'xs' => 'text-[10px]',
+        'sm' => 'text-xs',
+        'md' => 'text-xs',
+        'lg' => 'text-sm',
+        'xl' => 'text-base',
+    ];
+    $height = $heights[$size] ?? $heights['md'];
+    $taglineSize = $taglines[$size] ?? $taglines['md'];
 @endphp
 
-<div {{ $attributes->merge(['class' => 'flex items-center gap-3']) }}>
-    <x-logo-icon :class="$s['icon'] . ' shrink-0'" />
-    <div class="min-w-0">
-        <div class="{{ $s['title'] }} font-extrabold tracking-tight leading-none">
-            <span class="text-white">Auto</span><span class="bg-gradient-to-r from-amber-400 via-orange-500 to-red-500 bg-clip-text text-transparent">Modz</span><span class="font-semibold text-slate-500">.pk</span>
-        </div>
-        @if($showTagline)
-            <div class="{{ $s['sub'] }} mt-0.5 font-medium text-slate-400">{{ config('site.tagline') }}</div>
-        @endif
-    </div>
+<div {{ $attributes->merge(['class' => 'inline-flex flex-col overflow-visible']) }}>
+    <img
+        src="{{ $iconOnly ? '/favicon.svg' : '/images/logo.svg' }}"
+        alt="{{ config('site.name') }}"
+        class="{{ $height }} w-auto max-w-none shrink-0 object-contain object-left"
+        width="300"
+        height="72"
+        decoding="async"
+    >
+    @if($showTagline && ! $iconOnly)
+        <p class="{{ $taglineSize }} mt-1.5 font-medium leading-snug text-slate-400">{{ config('site.tagline') }}</p>
+    @endif
 </div>

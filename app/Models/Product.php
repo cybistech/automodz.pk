@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use App\Support\StorageUrl;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -84,10 +85,15 @@ class Product extends Model
         return $images[0] ?? null;
     }
 
+    public function imageUrl(?string $path = null): ?string
+    {
+        return StorageUrl::public($path ?? $this->primary_image);
+    }
+
     public function getVideoSourceAttribute(): ?string
     {
         if ($this->video_path) {
-            return asset('storage/'.$this->video_path);
+            return StorageUrl::public($this->video_path);
         }
 
         return $this->video_url;

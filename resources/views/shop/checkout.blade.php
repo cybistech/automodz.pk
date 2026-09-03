@@ -3,9 +3,6 @@
 @section('title', 'Checkout')
 
 @section('content')
-@php
-    $total = $subtotal + $shipping + $tax;
-@endphp
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
     <div class="flex flex-wrap items-center justify-between gap-4">
         <h1 class="text-2xl font-bold text-white">Checkout</h1>
@@ -51,7 +48,18 @@
                     </div>
                     <div>
                         <label class="text-sm text-slate-400">City</label>
-                        <input type="text" name="shipping_city" value="{{ old('shipping_city', $user?->city) }}" required class="input-field mt-1">
+                        <select name="shipping_city_id" id="shipping_city_id" required class="input-field mt-1">
+                            @foreach($shippingCities as $city)
+                                <option
+                                    value="{{ $city->id }}"
+                                    data-shipping="{{ $city->shippingFee() }}"
+                                    @selected($selectedCityId === $city->id)
+                                >
+                                    {{ $city->name }} — {{ number_format($city->distance_km) }} km — Rs. {{ number_format($city->shippingFee()) }}
+                                </option>
+                            @endforeach
+                        </select>
+                        <p class="mt-1 text-xs text-slate-500">Shipping from {{ config('shipping.origin_city') }} based on city distance.</p>
                     </div>
                     <div class="sm:col-span-2">
                         <label class="text-sm text-slate-400">Order Notes (optional)</label>
@@ -94,11 +102,11 @@
                 @endforeach
             </div>
             <dl class="mt-4 space-y-2 border-t border-slate-700 pt-4 text-sm">
-                <div class="flex justify-between"><dt class="text-slate-400">Subtotal</dt><dd>Rs. {{ number_format($subtotal) }}</dd></div>
-                <div class="flex justify-between"><dt class="text-slate-400">Shipping</dt><dd>{{ $shipping > 0 ? 'Rs. '.number_format($shipping) : 'Free' }}</dd></div>
-                <div class="flex justify-between"><dt class="text-slate-400">Tax</dt><dd>Rs. {{ number_format($tax) }}</dd></div>
-                <div class="flex justify-between text-lg font-bold"><dt>Total</dt><dd class="text-orange-400">Rs. {{ number_format($total) }}</dd></div>
+                <div class="flex justify-between"><dt class="text-slate-400">Subtotal</dt><dd id="summary-subtotal">Rs. {{ number_format($subtotal) }}</dd></div>
+                <div class="flex justify-between"><dt class="text-slate-400">Shipping</dt><dd id="summary-shipping">Rs. {{ number_format($shipping) }}</dd></div>
+                <div class="flex justify-between text-lg font-bold"><dt>Total</dt><dd class="text-orange-400" id="summary-total">Rs. {{ number_format($total) }}</dd></div>
             </dl>
+            <p class="mt-3 text-xs text-slate-500">No tax applied on items.</p>
             <button type="submit" class="btn-primary mt-6 w-full">
                 @guest Place Guest Order @else Place Order @endguest
             </button>
@@ -107,6 +115,19 @@
 </div>
 
 <script>
+const subtotal = {{ $subtotal }};
+const citySelect = document.getElementById('shipping_city_id');
+const shippingEl = document.getElementById('summary-shipping');
+const totalEl = document.getElementById('summary-total');
+
+function updateShippingSummary() {
+    const shipping = parseFloat(citySelect.selectedOptions[0]?.dataset.shipping || 0);
+    shippingEl.textContent = 'Rs. ' + shipping.toLocaleString('en-PK');
+    totalEl.textContent = 'Rs. ' + (subtotal + shipping).toLocaleString('en-PK');
+}
+
+citySelect?.addEventListener('change', updateShippingSummary);
+
 document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
     radio.addEventListener('change', () => {
         const bankRef = document.getElementById('bank-reference');

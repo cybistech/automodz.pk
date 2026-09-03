@@ -19,7 +19,7 @@
                     <div class="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                         <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-900">
                             @if($item['image'])
-                                <img src="{{ asset('storage/'.$item['image']) }}" alt="" width="80" height="80" loading="lazy" decoding="async" class="h-full w-full object-cover">
+                                <img src="{{ \App\Support\StorageUrl::public($item['image']) }}" alt="" width="80" height="80" loading="lazy" decoding="async" class="h-full w-full object-cover">
                             @endif
                         </div>
                         <div class="flex-1">
@@ -47,12 +47,12 @@
                 <h3 class="font-semibold text-white">Order Summary</h3>
                 <dl class="mt-4 space-y-3 text-sm">
                     <div class="flex justify-between"><dt class="text-slate-400">Subtotal</dt><dd>Rs. {{ number_format($subtotal) }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-slate-400">Shipping</dt><dd>{{ $subtotal >= 10000 ? 'Free' : 'Rs. 500' }}</dd></div>
-                    <div class="flex justify-between"><dt class="text-slate-400">Tax (5%)</dt><dd>Rs. {{ number_format($subtotal * 0.05) }}</dd></div>
+                    <div class="flex justify-between"><dt class="text-slate-400">Shipping</dt><dd class="text-slate-300">Calculated at checkout</dd></div>
                     <div class="flex justify-between border-t border-slate-700 pt-3 text-lg font-bold">
-                        <dt>Total</dt>
-                        <dd class="text-orange-400">Rs. {{ number_format($subtotal + ($subtotal >= 10000 ? 0 : 500) + ($subtotal * 0.05)) }}</dd>
+                        <dt>Items Total</dt>
+                        <dd class="text-orange-400">Rs. {{ number_format($subtotal) }}</dd>
                     </div>
+                    <p class="text-xs text-slate-500">Shipping is based on your city. No tax on items.</p>
                 </dl>
                 <a href="{{ route('checkout.index') }}" class="btn-primary mt-6 w-full">Proceed to Checkout</a>
                 <a href="{{ route('products.index') }}" class="mt-3 block text-center text-sm text-slate-400 hover:text-orange-400">Continue Shopping</a>

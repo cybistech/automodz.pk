@@ -98,7 +98,7 @@
             @if(isset($product) && $product?->images)
                 <div class="mt-2 flex gap-2">
                     @foreach($product?->images as $image)
-                        <img src="{{ asset('storage/'.$image) }}" class="h-16 rounded object-cover">
+                        <img src="{{ $product->imageUrl($image) }}" class="h-16 rounded object-cover">
                     @endforeach
                 </div>
             @endif
