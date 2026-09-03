@@ -33,6 +33,7 @@ class ShopCache
         foreach ([
             'shop.homepage',
             'shop.homepage.v2',
+            'shop.homepage.v3',
             'shop.categories',
             'shop.categories.v2',
             'shop.brands',

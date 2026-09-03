@@ -5,31 +5,31 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\ProductCache;
 use App\Support\ShopCache;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Collection as SupportCollection;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $cached = ShopCache::rememberJson('shop.homepage.v2', now()->addMinutes(10), fn () => $this->buildHomepagePayload());
+        $cached = ShopCache::rememberJson('shop.homepage.v3', now()->addMinutes(10), fn () => $this->buildHomepagePayload());
 
         return view('shop.home', [
-            'featuredProducts' => $this->hydrateProducts($cached['featuredProducts'] ?? []),
-            'saleProducts' => $this->hydrateProducts($cached['saleProducts'] ?? []),
+            'featuredProducts' => ProductCache::hydrate($cached['featuredProducts'] ?? []),
+            'saleProducts' => ProductCache::hydrate($cached['saleProducts'] ?? []),
             'categories' => $this->hydrateCategories($cached['categories'] ?? []),
-            'newArrivals' => $this->hydrateProducts($cached['newArrivals'] ?? []),
+            'newArrivals' => ProductCache::hydrate($cached['newArrivals'] ?? []),
         ]);
     }
 
     private function buildHomepagePayload(): array
     {
         return [
-            'featuredProducts' => $this->serializeProducts(
+            'featuredProducts' => ProductCache::serialize(
                 Product::active()->featured()->forListing()->latest()->take(8)->get()
             ),
-            'saleProducts' => $this->serializeProducts(
+            'saleProducts' => ProductCache::serialize(
                 Product::active()->onSale()->forListing()->orderByRaw('(price - sale_price) DESC')->take(8)->get()
             ),
             'categories' => Category::query()
@@ -41,22 +41,10 @@ class HomeController extends Controller
                 ->map->attributesToArray()
                 ->values()
                 ->all(),
-            'newArrivals' => $this->serializeProducts(
+            'newArrivals' => ProductCache::serialize(
                 Product::active()->forListing()->latest()->take(8)->get()
             ),
         ];
-    }
-
-    private function serializeProducts(SupportCollection $products): array
-    {
-        return $products->map->attributesToArray()->values()->all();
-    }
-
-    private function hydrateProducts(array $items): Collection
-    {
-        $rows = array_values(array_filter($items, fn ($item) => is_array($item) && isset($item['id'])));
-
-        return $rows === [] ? new Collection : Product::hydrate($rows);
     }
 
     private function hydrateCategories(array $items): Collection
