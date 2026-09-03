@@ -79,9 +79,15 @@ if command -v redis-cli >/dev/null 2>&1; then
     if redis-cli ping >/dev/null 2>&1; then
         echo "Redis is ready."
     else
-        echo "WARNING: Redis is not responding. Cache and sessions may fail until Redis is started."
+        echo "WARNING: Redis is not responding. App will fall back to file sessions and file cache."
     fi
 fi
+
+echo "==> Clearing stale caches..."
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+php artisan cache:clear
 
 echo "==> Optimizing application..."
 php artisan optimize
