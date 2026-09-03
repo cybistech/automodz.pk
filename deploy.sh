@@ -14,6 +14,9 @@ fi
 echo "==> Installing PHP dependencies..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
+echo "==> Fixing storage permissions..."
+bash "$APP_DIR/fix-permissions.sh"
+
 echo "==> Installing Node dependencies..."
 npm ci
 
@@ -45,9 +48,6 @@ php artisan optimize
 
 echo "==> Ensuring upload directory exists..."
 mkdir -p storage/app/public
-
-echo "==> Fixing storage permissions..."
-bash "$APP_DIR/fix-permissions.sh"
 
 echo "==> Restarting queue workers..."
 php artisan queue:restart || true

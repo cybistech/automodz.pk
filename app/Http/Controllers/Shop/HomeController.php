@@ -5,14 +5,14 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\ShopCache;
 use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Cache;
 
 class HomeController extends Controller
 {
     public function index()
     {
-        $cached = Cache::remember('shop.homepage', now()->addMinutes(10), function () {
+        $cached = ShopCache::rememberJson('shop.homepage.v2', now()->addMinutes(10), function () {
             return [
                 'featuredProducts' => $this->serializeProducts(
                     Product::active()->featured()->forListing()->latest()->take(8)->get()
@@ -36,10 +36,10 @@ class HomeController extends Controller
         });
 
         return view('shop.home', [
-            'featuredProducts' => Product::hydrate($cached['featuredProducts']),
-            'saleProducts' => Product::hydrate($cached['saleProducts']),
-            'categories' => Category::hydrate($cached['categories']),
-            'newArrivals' => Product::hydrate($cached['newArrivals']),
+            'featuredProducts' => Product::hydrate($cached['featuredProducts'] ?? []),
+            'saleProducts' => Product::hydrate($cached['saleProducts'] ?? []),
+            'categories' => Category::hydrate($cached['categories'] ?? []),
+            'newArrivals' => Product::hydrate($cached['newArrivals'] ?? []),
         ]);
     }
 

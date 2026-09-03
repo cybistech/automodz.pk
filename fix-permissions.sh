@@ -14,6 +14,7 @@ mkdir -p \
     storage/framework/sessions \
     storage/framework/views \
     storage/framework/testing \
+    storage/framework/temp \
     storage/logs \
     storage/app/public \
     storage/app/private \
@@ -27,5 +28,14 @@ fi
 
 chmod -R ug+rwX storage bootstrap/cache
 chmod 664 storage/logs/laravel.log 2>/dev/null || true
+
+for dir in storage/framework/views storage/framework/cache bootstrap/cache storage/framework/temp; do
+    if [[ -w "$dir" ]]; then
+        echo "OK  $dir is writable"
+    else
+        echo "ERR $dir is NOT writable — fix ownership for your PHP/web user"
+        exit 1
+    fi
+done
 
 echo "==> Done. storage/ and bootstrap/cache/ are writable."

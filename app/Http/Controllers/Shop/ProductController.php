@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\ShopCache;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 class ProductController extends Controller
 {
@@ -52,16 +52,29 @@ class ProductController extends Controller
         };
 
         $products = $query->paginate(12)->withQueryString();
-        $categories = Cache::remember('shop.categories', now()->addHour(), fn () => Category::query()
-            ->where('is_active', true)
-            ->orderBy('sort_order')
-            ->select(['id', 'name', 'slug'])
-            ->get());
-        $brands = Cache::remember('shop.brands', now()->addHour(), fn () => Product::active()
-            ->whereNotNull('brand')
-            ->distinct()
-            ->orderBy('brand')
-            ->pluck('brand'));
+        $categories = Category::hydrate(
+            ShopCache::rememberJson('shop.categories.v2', now()->addHour(), function () {
+                return Category::query()
+                    ->where('is_active', true)
+                    ->orderBy('sort_order')
+                    ->select(['id', 'name', 'slug'])
+                    ->get()
+                    ->map->attributesToArray()
+                    ->values()
+                    ->all();
+            })
+        );
+        $brands = collect(
+            ShopCache::rememberJson('shop.brands.v2', now()->addHour(), function () {
+                return Product::active()
+                    ->whereNotNull('brand')
+                    ->distinct()
+                    ->orderBy('brand')
+                    ->pluck('brand')
+                    ->values()
+                    ->all();
+            })
+        );
 
         return view('shop.products.index', compact('products', 'categories', 'brands'));
     }
