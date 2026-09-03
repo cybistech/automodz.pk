@@ -54,8 +54,8 @@ return [
 
         'stack' => [
             'driver' => 'stack',
-            'channels' => explode(',', (string) env('LOG_STACK', 'daily')),
-            'ignore_exceptions' => false,
+            'channels' => explode(',', (string) env('LOG_STACK', 'daily,errorlog')),
+            'ignore_exceptions' => true,
         ],
 
         'single' => [

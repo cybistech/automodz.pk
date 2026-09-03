@@ -53,16 +53,19 @@ class ProductController extends Controller
 
         $products = $query->paginate(12)->withQueryString();
         $categories = Category::hydrate(
-            ShopCache::rememberJson('shop.categories.v2', now()->addHour(), function () {
-                return Category::query()
-                    ->where('is_active', true)
-                    ->orderBy('sort_order')
-                    ->select(['id', 'name', 'slug'])
-                    ->get()
-                    ->map->attributesToArray()
-                    ->values()
-                    ->all();
-            })
+            array_values(array_filter(
+                ShopCache::rememberJson('shop.categories.v2', now()->addHour(), function () {
+                    return Category::query()
+                        ->where('is_active', true)
+                        ->orderBy('sort_order')
+                        ->select(['id', 'name', 'slug'])
+                        ->get()
+                        ->map->attributesToArray()
+                        ->values()
+                        ->all();
+                }),
+                fn ($item) => is_array($item) && isset($item['id'])
+            ))
         );
         $brands = collect(
             ShopCache::rememberJson('shop.brands.v2', now()->addHour(), function () {

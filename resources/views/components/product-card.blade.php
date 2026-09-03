@@ -1,5 +1,6 @@
-@props(['lazy' => true])
+@props(['product', 'lazy' => true])
 
+@if($product)
 <div class="card-hover group overflow-hidden">
     <a href="{{ route('products.show', $product->slug) }}" class="block">
         <div class="relative aspect-square overflow-hidden bg-slate-900">
@@ -50,3 +51,4 @@
         </div>
     </a>
 </div>
+@endif
