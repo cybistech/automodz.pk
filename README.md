@@ -59,7 +59,7 @@ DB_DATABASE=automodz
 DB_USERNAME=root
 DB_PASSWORD=your_mysql_password
 
-CACHE_STORE=redis
+CACHE_STORE=failover
 SESSION_DRIVER=redis
 QUEUE_CONNECTION=redis
 
@@ -69,6 +69,8 @@ REDIS_PORT=6379
 REDIS_DB=0
 REDIS_CACHE_DB=1
 ```
+
+`failover` uses Redis first, then falls back to file cache if Redis is down.
 
 Install and start Redis on the server:
 

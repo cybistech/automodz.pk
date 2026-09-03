@@ -4,7 +4,7 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\User;
-use Illuminate\Support\Facades\Cache;
+use App\Support\ResilientCache;
 use Illuminate\Support\Facades\Log;
 
 class OtpService
@@ -29,7 +29,11 @@ class OtpService
         $phone = $this->normalizePhone($phone);
         $code = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        Cache::put($this->cacheKey($phone), $code, now()->addMinutes(5));
+        $stored = ResilientCache::put($this->cacheKey($phone), $code, now()->addMinutes(5));
+
+        if (! $stored) {
+            session([$this->sessionKey($phone) => $code]);
+        }
 
         Log::info('OTP sent', ['phone' => $phone, 'code' => $code]);
 
@@ -39,13 +43,15 @@ class OtpService
     public function verify(string $phone, string $code): bool
     {
         $phone = $this->normalizePhone($phone);
-        $stored = Cache::get($this->cacheKey($phone));
+        $stored = ResilientCache::get($this->cacheKey($phone))
+            ?? session($this->sessionKey($phone));
 
         if (! $stored || $stored !== $code) {
             return false;
         }
 
-        Cache::forget($this->cacheKey($phone));
+        ResilientCache::forget($this->cacheKey($phone));
+        session()->forget($this->sessionKey($phone));
 
         return true;
     }
@@ -53,5 +59,10 @@ class OtpService
     private function cacheKey(string $phone): string
     {
         return 'otp:'.md5($phone);
+    }
+
+    private function sessionKey(string $phone): string
+    {
+        return 'otp_session:'.md5($phone);
     }
 }
