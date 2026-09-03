@@ -13,8 +13,10 @@ export default defineConfig(({ command }) => ({
         cssMinify: true,
         rollupOptions: {
             output: {
-                manualChunks: {
-                    alpine: ['alpinejs'],
+                manualChunks(id) {
+                    if (id.includes('node_modules/alpinejs')) {
+                        return 'alpine';
+                    }
                 },
             },
         },
