@@ -15,13 +15,33 @@ Pakistan's premium e-commerce platform for auto and motorcycle parts, performanc
 
 ## Deployment
 
-Point your domain document root to the project folder (not `public/`). Apache uses the root `.htaccess` and `index.php`.
+Laravel standard: **`.env`**, **`.htaccess`**, and **`vendor/`** are server-managed and are **not** deployed from git.
+
+| File / folder | In git? | On server |
+|---------------|---------|-----------|
+| `.env` | No — use `.env.example` | Create once, edit on server only |
+| `.htaccess` | No — use `.htaccess.example` | Create once from example, customize on server |
+| `vendor/` | No | Built with `composer install` during deploy |
+
+First-time server setup:
+
+```bash
+cp .env.example .env
+cp .htaccess.example .htaccess
+php artisan key:generate
+# Edit .env with production DB, Redis, APP_URL, etc.
+./deploy.sh
+```
+
+Routine deploy (pulls code, runs composer/npm, keeps server `.env` / `.htaccess` / `vendor` intact):
 
 ```bash
 ./deploy.sh
 ```
 
 Set `SKIP_GIT_PULL=1` to deploy the current checkout without pulling from git.
+
+Point your domain document root to the project folder (not `public/`). Apache uses the server-local `.htaccess` and `index.php`.
 
 ## Quick Start
 
@@ -31,7 +51,9 @@ Requires MySQL 8+ and Redis:
 sudo systemctl start redis-server
 mysql -u root -e "CREATE DATABASE automodz CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
 composer install && npm install
-cp .env.example .env && php artisan key:generate
+cp .env.example .env
+cp .htaccess.example .htaccess
+php artisan key:generate
 php artisan migrate --seed
 mkdir -p storage/app/public
 npm run build && php artisan serve

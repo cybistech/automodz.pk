@@ -8,9 +8,13 @@
     # Block direct access to application source directories.
     RewriteRule ^(app|bootstrap|config|database|resources|routes|tests|vendor)(/|$) - [F,L]
 
-    # Block private storage paths; serve public uploads from storage/app/public.
-    RewriteRule ^storage/(app|framework|logs)(/|$) - [F,L]
-    RewriteRule ^storage/(.*)$ storage/app/public/$1 [L]
+    # Block direct web access to private application storage.
+    RewriteRule ^storage(/|$) - [F,L]
+
+    # Serve public uploads from storage/app/public via /uploads URL.
+    RewriteCond %{REQUEST_URI} ^/uploads/(.+)$ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/%1 -f
+    RewriteRule ^uploads/(.+)$ storage/app/public/$1 [L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

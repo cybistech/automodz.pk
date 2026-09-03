@@ -6,12 +6,52 @@ cd "$APP_DIR"
 
 echo "==> Deploying $(basename "$APP_DIR")..."
 
-if [[ "${SKIP_GIT_PULL:-0}" != "1" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "==> Pulling latest changes..."
-    git pull --ff-only origin main
+# Laravel standard: these files are server-managed and must never be overwritten by deploy.
+SERVER_MANAGED=(.env .htaccess vendor)
+
+ensure_server_file() {
+    local file="$1"
+    local example="$2"
+
+    if [[ ! -f "$file" && -f "$example" ]]; then
+        cp "$example" "$file"
+        echo "Created $file from $example"
+    fi
+}
+
+ensure_server_file .env .env.example
+ensure_server_file .htaccess .htaccess.example
+
+if [[ ! -f .env ]]; then
+    echo "ERROR: .env is missing. Copy .env.example to .env, configure production values, then redeploy."
+    exit 1
 fi
 
-echo "==> Installing PHP dependencies..."
+if [[ ! -f .htaccess ]]; then
+    echo "ERROR: .htaccess is missing. Copy .htaccess.example to .htaccess, then redeploy."
+    exit 1
+fi
+
+if [[ "${SKIP_GIT_PULL:-0}" != "1" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "==> Pulling latest changes (preserving .env, .htaccess, vendor)..."
+
+    declare -A BACKUPS=()
+    for file in "${SERVER_MANAGED[@]}"; do
+        if [[ -e "$file" ]]; then
+            BACKUPS[$file]=$(mktemp)
+            cp -a "$file" "${BACKUPS[$file]}"
+        fi
+    done
+
+    git pull --ff-only origin main
+
+    for file in "${!BACKUPS[@]}"; do
+        cp -a "${BACKUPS[$file]}" "$file"
+        rm -f "${BACKUPS[$file]}"
+    done
+fi
+
+echo "==> Installing PHP dependencies (vendor is built on server, never deployed)..."
 composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 
 echo "==> Fixing storage permissions..."
@@ -48,6 +88,11 @@ php artisan optimize
 
 echo "==> Ensuring upload directory exists..."
 mkdir -p storage/app/public/products storage/app/public/categories
+
+if [[ -z "$(find storage/app/public/products -maxdepth 1 -type f 2>/dev/null | head -1)" ]]; then
+    echo "==> No product images found — generating catalog images..."
+    php artisan db:seed --class=MotorcycleCatalogSeeder --force || echo "WARNING: Could not seed product images."
+fi
 
 echo "==> Restarting queue workers..."
 php artisan queue:restart || true
