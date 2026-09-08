@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Services\CartService;
 use App\Services\OrderService;
-use App\Services\Payments\JazzCashPaymentService;
-use App\Services\Payments\StripePaymentService;
 use App\Services\ShippingService;
 use Illuminate\Http\Request;
 
@@ -16,8 +14,6 @@ class CheckoutController extends Controller
         private CartService $cart,
         private OrderService $orderService,
         private ShippingService $shipping,
-        private StripePaymentService $stripe,
-        private JazzCashPaymentService $jazzCash,
     ) {}
 
     public function index()
@@ -47,7 +43,7 @@ class CheckoutController extends Controller
             'shippingCities' => $shippingCities,
             'selectedCityId' => $selectedCityId,
             'paymentMethods' => config('payments.methods'),
-            'bank' => config('payments.bank'),
+            'easypaisa' => config('payments.easypaisa'),
             'user' => $user,
         ]);
     }
@@ -64,25 +60,16 @@ class CheckoutController extends Controller
             'customer_phone' => 'required|string|max:20',
             'shipping_address' => 'required|string|max:500',
             'shipping_city_id' => 'required|exists:shipping_cities,id',
-            'payment_method' => 'required|in:stripe,jazzcash,bank_transfer,cod',
+            'payment_method' => 'required|in:easypaisa,cod',
             'notes' => 'nullable|string|max:500',
-            'bank_reference' => 'nullable|string|max:100',
         ]);
-
-        if ($validated['payment_method'] === 'bank_transfer' && empty($validated['bank_reference'])) {
-            return back()->withInput()->with('error', 'Please provide your bank transfer reference number.');
-        }
 
         $order = $this->orderService->createFromCart($validated);
 
-        return match ($validated['payment_method']) {
-            'stripe' => redirect($this->stripe->createCheckoutSession($order)->url),
-            'jazzcash' => view('shop.payments.jazzcash-redirect', $this->jazzCash->buildPaymentForm($order)),
-            'bank_transfer', 'cod' => $this->completeOfflineOrder($order, $validated['payment_method']),
-        };
+        return $this->completeOrder($order, $validated['payment_method']);
     }
 
-    private function completeOfflineOrder($order, string $method)
+    private function completeOrder($order, string $method)
     {
         $this->cart->clear();
         session(['last_order_id' => $order->id]);
@@ -91,12 +78,26 @@ class CheckoutController extends Controller
             $order->update(['status' => 'confirmed']);
         }
 
+        $message = match ($method) {
+            'cod' => 'Order placed successfully. Pay on delivery.',
+            'easypaisa' => $this->easypaisaConfirmationMessage($order),
+        };
+
         return redirect()->route('orders.confirmation', [
             'order' => $order,
             'token' => $order->guest_token,
-        ])
-            ->with('success', $method === 'cod'
-                ? 'Order placed successfully. Pay on delivery.'
-                : 'Order placed. Please complete your bank transfer and we will confirm your payment.');
+        ])->with('success', $message);
+    }
+
+    private function easypaisaConfirmationMessage($order): string
+    {
+        $account = config('payments.easypaisa.account_number');
+        $title = config('payments.easypaisa.account_title');
+
+        if ($account) {
+            return "Order placed. Send Rs. ".number_format($order->total)." via EasyPaisa to {$title} ({$account}). We will confirm once payment is received.";
+        }
+
+        return 'Order placed. Complete your EasyPaisa payment and we will confirm once received.';
     }
 }

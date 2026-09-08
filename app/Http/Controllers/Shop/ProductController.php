@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Shop;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\Product;
+use App\Support\Seo;
 use App\Support\ShopCache;
 use Illuminate\Http\Request;
 
@@ -52,6 +53,28 @@ class ProductController extends Controller
         };
 
         $products = $query->paginate(12)->withQueryString();
+
+        $activeCategory = null;
+        if ($request->filled('category')) {
+            $activeCategory = Category::query()
+                ->where('slug', $request->category)
+                ->where('is_active', true)
+                ->first(['id', 'name', 'slug', 'description', 'meta_title', 'meta_description', 'meta_keywords']);
+        }
+
+        $seoTitle = $activeCategory?->meta_title
+            ?: ($activeCategory
+                ? $activeCategory->name.' Parts — Buy Online Pakistan | '.config('site.name')
+                : 'Auto & Motorcycle Parts — Buy Online Pakistan | '.config('site.name'));
+
+        $seoDescription = Seo::description(
+            $activeCategory?->meta_description ?: $activeCategory?->description,
+            'Shop auto and motorcycle mods, lights, mirrors, and performance parts at '.config('site.domain').'. EasyPaisa & COD. Fast delivery from '.config('site.office_city').', Pakistan.'
+        );
+
+        $seoKeywords = $activeCategory?->meta_keywords
+            ?: 'automodz, auto parts Pakistan, motorcycle parts, bike accessories, '.config('site.domain');
+
         $categories = Category::hydrate(
             array_values(array_filter(
                 ShopCache::rememberJson('shop.categories.v2', now()->addHour(), function () {
@@ -79,7 +102,15 @@ class ProductController extends Controller
             })
         );
 
-        return view('shop.products.index', compact('products', 'categories', 'brands'));
+        return view('shop.products.index', compact(
+            'products',
+            'categories',
+            'brands',
+            'activeCategory',
+            'seoTitle',
+            'seoDescription',
+            'seoKeywords',
+        ));
     }
 
     public function show(string $slug)

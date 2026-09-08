@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
                 'password' => Hash::make('password'),
                 'is_admin' => true,
                 'phone' => '+923001234567',
-                'city' => 'Karachi',
+                'city' => 'Lahore',
                 'email_verified_at' => now(),
             ]
         );

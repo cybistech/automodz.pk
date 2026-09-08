@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\FeedController;
+use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
@@ -24,6 +26,16 @@ Route::get('/uploads/{path}', function (string $path) {
         'Cache-Control' => 'public, max-age=31536000, immutable',
     ]);
 })->where('path', '.*')->name('uploads.public');
+
+Route::get('/feed.xml', [FeedController::class, 'products'])->name('feed.products');
+
+Route::get('/robots.txt', [SitemapController::class, 'robots'])->name('robots');
+Route::get('/llms.txt', [SitemapController::class, 'llms'])->name('llms');
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap.index');
+Route::get('/sitemap-pages.xml', [SitemapController::class, 'pages'])->name('sitemap.pages');
+Route::get('/sitemap-categories.xml', [SitemapController::class, 'categories'])->name('sitemap.categories');
+Route::get('/sitemap-products.xml', [SitemapController::class, 'products'])->name('sitemap.products');
+Route::get('/sitemap', [SitemapController::class, 'html'])->name('sitemap.html');
 
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');

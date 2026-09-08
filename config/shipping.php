@@ -2,6 +2,6 @@
 
 return [
 
-    'origin_city' => env('SHIPPING_ORIGIN_CITY', 'Karachi'),
+    'origin_city' => env('SHIPPING_ORIGIN_CITY', 'Lahore'),
 
 ];

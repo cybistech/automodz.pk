@@ -15,11 +15,6 @@
             @error('email')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
         </div>
         <div>
-            <label class="text-sm text-slate-400">Mobile Number (optional)</label>
-            <input type="tel" name="phone" value="{{ old('phone') }}" class="input-field mt-1" placeholder="03001234567">
-            @error('phone')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror
-        </div>
-        <div>
             <label class="text-sm text-slate-400">Password</label>
             <input type="password" name="password" required class="input-field mt-1">
             @error('password')<p class="mt-1 text-sm text-red-400">{{ $message }}</p>@enderror

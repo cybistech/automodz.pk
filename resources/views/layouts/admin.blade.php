@@ -42,6 +42,15 @@
             @if(session('success'))
                 <div class="mx-6 mt-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-300">{{ session('success') }}</div>
             @endif
+            @if($errors->any())
+                <div class="mx-6 mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300">
+                    <ul class="list-disc space-y-1 pl-5 text-sm">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
 
             <main class="p-6">@yield('content')</main>
         </div>

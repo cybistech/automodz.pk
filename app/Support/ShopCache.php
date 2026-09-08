@@ -38,6 +38,9 @@ class ShopCache
             'shop.categories.v2',
             'shop.brands',
             'shop.brands.v2',
+            'shop.footer_categories.v1',
+            'sitemap.categories.v1',
+            'sitemap.products.v1',
         ] as $key) {
             try {
                 Cache::forget($key);

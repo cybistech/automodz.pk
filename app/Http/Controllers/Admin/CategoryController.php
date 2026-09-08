@@ -40,7 +40,13 @@ class CategoryController extends Controller
         $data['is_active'] = $request->boolean('is_active', true);
 
         if ($request->hasFile('image')) {
-            $data['image'] = $this->imageOptimizer->storePublicImage($request->file('image'), 'categories');
+            try {
+                $data['image'] = $this->imageOptimizer->storePublicImage($request->file('image'), 'categories');
+            } catch (\Throwable $e) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'image' => $e->getMessage(),
+                ]);
+            }
         }
 
         Category::create($data);
@@ -71,7 +77,14 @@ class CategoryController extends Controller
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);
             }
-            $data['image'] = $this->imageOptimizer->storePublicImage($request->file('image'), 'categories');
+
+            try {
+                $data['image'] = $this->imageOptimizer->storePublicImage($request->file('image'), 'categories');
+            } catch (\Throwable $e) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'image' => $e->getMessage(),
+                ]);
+            }
         }
 
         $category->update($data);

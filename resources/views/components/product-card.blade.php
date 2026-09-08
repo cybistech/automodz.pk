@@ -6,8 +6,9 @@
         <div class="relative aspect-square overflow-hidden bg-slate-900">
             @if($product->primary_image)
                 <img
-                    src="{{ $product->imageUrl() }}"
-                    alt="{{ $product->name }}"
+                    src="{{ $product->imageUrl(null, $lazy) }}"
+                    alt="{{ $product->imageAlt() }}"
+                    title="{{ $product->imageAlt() }}"
                     width="400"
                     height="400"
                     @if($lazy) loading="lazy" decoding="async" @else fetchpriority="high" @endif

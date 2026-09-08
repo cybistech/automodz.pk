@@ -2,8 +2,72 @@
 
 @section('title', $product->name)
 @section('meta_title', $product->meta_title ?: $product->name.' | Buy Online Pakistan')
-@section('meta_description', $product->meta_description ?: $product->short_description)
+@section('meta_description', \App\Support\Seo::description($product->meta_description ?: $product->short_description ?: $product->description))
 @section('meta_keywords', $product->meta_keywords)
+
+@if($product->primary_image)
+@section('meta_image', url($product->imageUrl()))
+@section('meta_image_alt', $product->imageAlt())
+@section('og_type', 'product')
+@endif
+@section('canonical', route('products.show', $product->slug))
+
+@push('head')
+    <meta property="product:price:amount" content="{{ number_format($product->effective_price, 2, '.', '') }}">
+    <meta property="product:price:currency" content="PKR">
+@endpush
+
+@push('jsonld')
+    @php
+        $productImages = collect($product->images ?? [])
+            ->map(fn ($path) => url($product->imageUrl($path)))
+            ->filter()
+            ->values()
+            ->all();
+
+        $productSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'Product',
+            'name' => $product->name,
+            'description' => strip_tags($product->meta_description ?: $product->short_description ?: $product->name),
+            'sku' => $product->sku,
+            'url' => route('products.show', $product->slug),
+            'image' => $productImages ?: null,
+            'category' => $product->category?->name,
+            'offers' => [
+                '@type' => 'Offer',
+                'url' => route('products.show', $product->slug),
+                'priceCurrency' => 'PKR',
+                'price' => number_format($product->effective_price, 2, '.', ''),
+                'availability' => $product->isInStock()
+                    ? 'https://schema.org/InStock'
+                    : 'https://schema.org/OutOfStock',
+                'itemCondition' => match ($product->condition) {
+                    'used' => 'https://schema.org/UsedCondition',
+                    'refurbished' => 'https://schema.org/RefurbishedCondition',
+                    default => 'https://schema.org/NewCondition',
+                },
+            ],
+        ];
+
+        if ($product->brand) {
+            $productSchema['brand'] = ['@type' => 'Brand', 'name' => $product->brand];
+        }
+
+        $breadcrumbSchema = [
+            '@context' => 'https://schema.org',
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Home', 'item' => route('home')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Products', 'item' => route('products.index')],
+                ['@type' => 'ListItem', 'position' => 3, 'name' => $product->category->name, 'item' => route('products.index', ['category' => $product->category->slug])],
+                ['@type' => 'ListItem', 'position' => 4, 'name' => $product->name, 'item' => route('products.show', $product->slug)],
+            ],
+        ];
+    @endphp
+    <x-json-ld :data="$productSchema" />
+    <x-json-ld :data="$breadcrumbSchema" />
+@endpush
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -18,7 +82,7 @@
         <div>
             <div class="card overflow-hidden">
                 @if($product->primary_image)
-                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->name }}" width="800" height="800" fetchpriority="high" decoding="async" class="aspect-square w-full object-cover">
+                    <img src="{{ $product->imageUrl() }}" alt="{{ $product->imageAlt() }}" title="{{ $product->imageAlt() }}" width="800" height="800" fetchpriority="high" decoding="async" class="aspect-square w-full object-cover">
                 @else
                     <div class="flex aspect-square items-center justify-center bg-slate-900 text-slate-600">
                         <svg class="h-24 w-24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -28,8 +92,8 @@
 
             @if($product->images && count($product->images) > 1)
                 <div class="mt-4 grid grid-cols-4 gap-3">
-                    @foreach($product->images as $image)
-                        <img src="{{ $product->imageUrl($image) }}" alt="" width="200" height="200" loading="lazy" decoding="async" class="aspect-square rounded-lg border border-slate-700 object-cover">
+                    @foreach($product->images as $index => $image)
+                        <img src="{{ $product->imageUrl($image, true) }}" alt="{{ $product->imageAlt($index) }}" title="{{ $product->imageAlt($index) }}" width="200" height="200" loading="lazy" decoding="async" class="aspect-square rounded-lg border border-slate-700 object-cover">
                     @endforeach
                 </div>
             @endif

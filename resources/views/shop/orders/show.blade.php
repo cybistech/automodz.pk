@@ -1,6 +1,7 @@
 @extends('layouts.shop')
 
 @section('title', 'Order '.$order->order_number)
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <div class="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
@@ -34,7 +35,7 @@
             </div>
             <div>
                 <h3 class="font-semibold text-white">Payment</h3>
-                <p class="mt-2 text-sm text-slate-300 capitalize">{{ str_replace('_', ' ', $order->payment_method) }}</p>
+                <p class="mt-2 text-sm text-slate-300">{{ config('payments.methods')[$order->payment_method] ?? ucwords(str_replace('_', ' ', $order->payment_method)) }}</p>
                 @if($order->bank_reference)
                     <p class="text-sm text-slate-400">Ref: {{ $order->bank_reference }}</p>
                 @endif
@@ -61,9 +62,16 @@
             </dl>
         </div>
 
-        @if($order->payment_method === 'bank_transfer' && $order->payment_status === 'pending')
+        @if($order->payment_method === 'easypaisa' && $order->payment_status === 'pending')
             <div class="mt-6 rounded-lg border border-yellow-500/30 bg-yellow-500/10 p-4 text-sm text-yellow-200">
-                Please transfer Rs. {{ number_format($order->total) }} to our bank account. Your order will be processed once payment is confirmed.
+                @if(config('payments.easypaisa.account_number'))
+                    Please send Rs. {{ number_format($order->total) }} via EasyPaisa to
+                    <strong>{{ config('payments.easypaisa.account_title') }}</strong>
+                    ({{ config('payments.easypaisa.account_number') }}).
+                @else
+                    Please complete your EasyPaisa payment of Rs. {{ number_format($order->total) }}.
+                @endif
+                Your order will be processed once payment is confirmed.
             </div>
         @endif
     </div>

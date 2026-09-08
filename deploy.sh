@@ -93,7 +93,7 @@ echo "==> Optimizing application..."
 php artisan optimize
 
 echo "==> Ensuring upload directory exists..."
-mkdir -p storage/app/public/products storage/app/public/categories
+mkdir -p storage/app/public/products/thumbs storage/app/public/categories
 
 if [[ -z "$(find storage/app/public/products -maxdepth 1 -type f 2>/dev/null | head -1)" ]]; then
     echo "==> No product images found — generating catalog images..."

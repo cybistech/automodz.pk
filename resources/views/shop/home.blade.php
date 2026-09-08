@@ -4,6 +4,56 @@
 @section('meta_title', config('site.name').' | Premium Auto & Motorcycle Mods Pakistan')
 @section('meta_description', config('site.description'))
 @section('meta_keywords', 'automodz, auto mods Pakistan, motorcycle parts, bike accessories, car mods, performance parts, automodz.pk')
+@section('canonical', route('home'))
+
+@push('jsonld')
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'WebSite',
+        'name' => config('site.name'),
+        'url' => config('site.url'),
+        'description' => config('site.description'),
+        'potentialAction' => [
+            '@type' => 'SearchAction',
+            'target' => route('products.index').'?search={search_term_string}',
+            'query-input' => 'required name=search_term_string',
+        ],
+    ]" />
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'Organization',
+        'name' => config('site.name'),
+        'url' => config('site.url'),
+        'logo' => url('/images/logo.svg'),
+        'email' => config('site.email'),
+        'telephone' => config('site.whatsapp_display'),
+        'address' => [
+            '@type' => 'PostalAddress',
+            'addressLocality' => config('site.office_city'),
+            'addressCountry' => 'PK',
+        ],
+        'areaServed' => 'PK',
+    ]" />
+    <x-json-ld :data="[
+        '@context' => 'https://schema.org',
+        '@type' => 'Store',
+        'name' => config('site.name'),
+        'url' => config('site.url'),
+        'image' => url('/images/logo.svg'),
+        'telephone' => config('site.whatsapp_display'),
+        'email' => config('site.email'),
+        'address' => [
+            '@type' => 'PostalAddress',
+            'addressLocality' => config('site.office_city'),
+            'addressRegion' => 'Punjab',
+            'addressCountry' => 'PK',
+        ],
+        'areaServed' => ['@type' => 'Country', 'name' => 'Pakistan'],
+        'priceRange' => 'Rs',
+        'currenciesAccepted' => 'PKR',
+        'paymentAccepted' => 'EasyPaisa, Cash on Delivery',
+    ]" />
+@endpush
 
 @section('content')
 <section class="relative overflow-hidden bg-slate-950 hero-grid">
@@ -72,7 +122,7 @@
 <section class="border-y border-slate-800 bg-slate-900/50 py-5">
     <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-10 gap-y-3 px-4 text-sm text-slate-400 sm:px-6 lg:px-8">
         <span class="flex items-center gap-2"><span class="text-orange-400">✓</span> Genuine Quality Parts</span>
-        <span class="flex items-center gap-2"><span class="text-orange-400">✓</span> JazzCash & COD</span>
+        <span class="flex items-center gap-2"><span class="text-orange-400">✓</span> EasyPaisa & COD</span>
         <span class="flex items-center gap-2"><span class="text-orange-400">✓</span> Guest Checkout</span>
         <span class="flex items-center gap-2"><span class="text-orange-400">✓</span> {{ config('site.email') }}</span>
     </div>
@@ -114,7 +164,7 @@
         </div>
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @foreach($saleProducts as $product)
-                <x-product-card :product="$product" />
+                <x-product-card :product="$product" :lazy="$loop->index >= 4" />
             @endforeach
         </div>
     </div>
@@ -128,7 +178,7 @@
         </div>
         <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             @foreach($featuredProducts as $product)
-                <x-product-card :product="$product" />
+                <x-product-card :product="$product" :lazy="$loop->index >= 4" />
             @endforeach
         </div>
     </div>
@@ -141,7 +191,7 @@
     </div>
     <div class="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
         @foreach($newArrivals as $product)
-            <x-product-card :product="$product" />
+            <x-product-card :product="$product" :lazy="$loop->index >= 4" />
         @endforeach
     </div>
 </section>
@@ -152,7 +202,7 @@
             <div class="text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-2xl">🚚</div>
                 <h3 class="mt-4 font-display text-lg font-bold text-white">Fast Delivery</h3>
-                <p class="mt-2 text-sm text-slate-400">Shipped across Pakistan from Karachi</p>
+                <p class="mt-2 text-sm text-slate-400">Shipped across Pakistan from {{ config('site.office_city') }}</p>
             </div>
             <div class="text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-2xl">⚡</div>
@@ -162,7 +212,7 @@
             <div class="text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-2xl">💳</div>
                 <h3 class="mt-4 font-display text-lg font-bold text-white">Easy Payments</h3>
-                <p class="mt-2 text-sm text-slate-400">JazzCash, card, bank & COD</p>
+                <p class="mt-2 text-sm text-slate-400">EasyPaisa & cash on delivery</p>
             </div>
             <div class="text-center">
                 <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-orange-500/15 text-2xl">🛡️</div>

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Support\StorageUrl;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class Product extends Model
@@ -85,9 +86,46 @@ class Product extends Model
         return $images[0] ?? null;
     }
 
-    public function imageUrl(?string $path = null): ?string
+    public function imageUrl(?string $path = null, bool $thumb = false): ?string
     {
-        return StorageUrl::public($path ?? $this->primary_image);
+        $path ??= $this->primary_image;
+
+        if (! $path) {
+            return null;
+        }
+
+        if ($thumb) {
+            $thumbPath = self::thumbPathFor($path);
+
+            if (Storage::disk('public')->exists($thumbPath)) {
+                return StorageUrl::public($thumbPath);
+            }
+        }
+
+        return StorageUrl::public($path);
+    }
+
+    public function imageAlt(int $index = 0): string
+    {
+        $alt = trim($this->name);
+
+        if ($index > 0) {
+            $alt .= ' — photo '.($index + 1);
+        }
+
+        return $alt;
+    }
+
+    public static function thumbPathFor(string $path): string
+    {
+        $directory = trim(dirname($path), '/');
+        $filename = basename($path);
+
+        if (str_ends_with($directory, '/thumbs')) {
+            return $directory.'/'.$filename;
+        }
+
+        return $directory.'/thumbs/'.$filename;
     }
 
     public function getVideoSourceAttribute(): ?string

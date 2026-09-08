@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>@yield('title') — {{ config('site.name', 'AutoModz') }}</title>
+    <meta name="robots" content="noindex, nofollow">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     @vite(['resources/css/app.css'])
 </head>

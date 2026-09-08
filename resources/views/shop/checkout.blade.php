@@ -1,6 +1,7 @@
 @extends('layouts.shop')
 
 @section('title', 'Checkout')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -76,17 +77,14 @@
                             <input type="radio" name="payment_method" value="{{ $key }}" @checked(old('payment_method', 'cod') === $key) class="text-orange-500 focus:ring-orange-500">
                             <div>
                                 <p class="font-medium">{{ $label }}</p>
-                                @if($key === 'bank_transfer')
-                                    <p class="mt-1 text-xs text-slate-400">{{ $bank['name'] }} - {{ $bank['account_number'] }} ({{ $bank['account_title'] }})</p>
+                                @if($key === 'easypaisa' && ! empty($easypaisa['account_number']))
+                                    <p class="mt-1 text-xs text-slate-400">Send payment to {{ $easypaisa['account_title'] }} — {{ $easypaisa['account_number'] }}</p>
+                                @elseif($key === 'cod')
+                                    <p class="mt-1 text-xs text-slate-400">Pay when your order is delivered</p>
                                 @endif
                             </div>
                         </label>
                     @endforeach
-                </div>
-
-                <div id="bank-reference" class="mt-4 hidden">
-                    <label class="text-sm text-slate-400">Bank Transfer Reference Number</label>
-                    <input type="text" name="bank_reference" value="{{ old('bank_reference') }}" class="input-field mt-1" placeholder="Enter your transaction reference">
                 </div>
             </div>
         </div>
@@ -127,18 +125,5 @@ function updateShippingSummary() {
 }
 
 citySelect?.addEventListener('change', updateShippingSummary);
-
-document.querySelectorAll('input[name="payment_method"]').forEach(radio => {
-    radio.addEventListener('change', () => {
-        const bankRef = document.getElementById('bank-reference');
-        bankRef.classList.toggle('hidden', radio.value !== 'bank_transfer' || !radio.checked);
-        if (radio.value === 'bank_transfer' && radio.checked) {
-            bankRef.querySelector('input').required = true;
-        } else {
-            bankRef.querySelector('input').required = false;
-        }
-    });
-});
-document.querySelector('input[name="payment_method"]:checked')?.dispatchEvent(new Event('change'));
 </script>
 @endsection

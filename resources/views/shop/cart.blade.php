@@ -1,6 +1,7 @@
 @extends('layouts.shop')
 
 @section('title', 'Shopping Cart')
+@section('robots', 'noindex, nofollow')
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
@@ -18,8 +19,8 @@
                 @foreach($items as $item)
                     <div class="card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
                         <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-lg bg-slate-900">
-                            @if($item['image'])
-                                <img src="{{ \App\Support\StorageUrl::public($item['image']) }}" alt="" width="80" height="80" loading="lazy" decoding="async" class="h-full w-full object-cover">
+                            @if($item['product']->primary_image)
+                                <img src="{{ $item['product']->imageUrl(null, true) }}" alt="{{ $item['product']->imageAlt() }}" title="{{ $item['product']->imageAlt() }}" width="80" height="80" loading="lazy" decoding="async" class="h-full w-full object-cover">
                             @endif
                         </div>
                         <div class="flex-1">

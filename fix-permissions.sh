@@ -11,6 +11,7 @@ echo "==> Fixing permissions for ${WEB_USER}:${WEB_GROUP}..."
 
 mkdir -p \
     storage/app/public/products \
+    storage/app/public/products/thumbs \
     storage/app/public/categories \
     storage/framework/cache/data \
     storage/framework/sessions \
@@ -35,7 +36,7 @@ find storage bootstrap/cache -type d -exec chmod 775 {} + 2>/dev/null || chmod -
 find storage bootstrap/cache -type f -exec chmod 664 {} + 2>/dev/null || true
 chmod 775 storage/logs 2>/dev/null || true
 
-for dir in storage/logs storage/framework/views storage/framework/cache bootstrap/cache storage/framework/temp; do
+for dir in storage/logs storage/framework/views storage/framework/cache bootstrap/cache storage/framework/temp storage/app/public/products storage/app/public/products/thumbs storage/app/public/categories; do
     if [[ -w "$dir" ]]; then
         echo "OK  $dir is writable"
     else

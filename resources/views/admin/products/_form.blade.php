@@ -94,11 +94,18 @@
         <h3 class="font-semibold">Media</h3>
         <div>
             <label class="text-sm text-slate-400">Product Images</label>
-            <input type="file" name="images[]" accept="image/*" multiple class="mt-1 text-sm text-slate-400">
+            <input type="file" name="images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="mt-1 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500/20 file:px-3 file:py-2 file:text-orange-300">
+            <p class="mt-1 text-xs text-slate-500">JPG, PNG, or WebP up to 8MB each. Images are auto-compressed to lightweight WebP.</p>
+            @error('images')
+                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+            @enderror
+            @error('images.*')
+                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+            @enderror
             @if(isset($product) && $product?->images)
                 <div class="mt-2 flex gap-2">
-                    @foreach($product?->images as $image)
-                        <img src="{{ $product->imageUrl($image) }}" class="h-16 rounded object-cover">
+                    @foreach($product?->images as $index => $image)
+                        <img src="{{ $product->imageUrl($image, true) }}" alt="{{ $product->imageAlt($index) }}" title="{{ $product->imageAlt($index) }}" class="h-16 rounded object-cover" width="64" height="64" loading="lazy" decoding="async">
                     @endforeach
                 </div>
             @endif

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="en-PK">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,18 +11,46 @@
     @else
         <meta name="keywords" content="automodz, auto mods Pakistan, motorcycle parts, bike accessories, car mods, {{ config('site.domain') }}">
     @endif
+    @if(config('seo.google_site_verification'))
+        <meta name="google-site-verification" content="{{ config('seo.google_site_verification') }}">
+    @endif
+    <meta name="geo.region" content="PK-PB">
+    <meta name="geo.placename" content="{{ config('site.office_city') }}">
+    <meta name="author" content="{{ config('site.name') }}">
     <meta property="og:title" content="@yield('meta_title', config('site.name'))">
     <meta property="og:description" content="@yield('meta_description', config('site.description'))">
-    <meta property="og:url" content="{{ config('site.url') }}">
+    <meta property="og:url" content="@yield('canonical', rtrim(config('site.url'), '/').request()->getPathInfo())">
     <meta property="og:site_name" content="{{ config('site.name') }}">
-    <meta property="og:type" content="website">
-    <link rel="canonical" href="{{ config('site.url') }}{{ request()->getPathInfo() }}">
-    <meta name="robots" content="index, follow">
+    <meta property="og:type" content="@yield('og_type', 'website')">
+    <meta property="og:locale" content="en_PK">
+    @hasSection('meta_image')
+        <meta property="og:image" content="@yield('meta_image')">
+        <meta property="og:image:alt" content="@yield('meta_image_alt', config('site.name'))">
+    @else
+        <meta property="og:image" content="{{ \App\Support\Seo::defaultOgImage() }}">
+        <meta property="og:image:alt" content="{{ config('site.name') }} — {{ config('site.tagline') }}">
+    @endif
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="@yield('meta_title', config('site.name'))">
+    <meta name="twitter:description" content="@yield('meta_description', config('site.description'))">
+    @hasSection('meta_image')
+        <meta name="twitter:image" content="@yield('meta_image')">
+    @else
+        <meta name="twitter:image" content="{{ \App\Support\Seo::defaultOgImage() }}">
+    @endif
+    <meta name="robots" content="@yield('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')">
+    <link rel="canonical" href="@yield('canonical', rtrim(config('site.url'), '/').request()->getPathInfo())">
+    <link rel="alternate" type="application/rss+xml" title="{{ config('site.name') }} Products" href="{{ route('feed.products') }}">
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ route('sitemap.index') }}">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
+    <link rel="dns-prefetch" href="https://fonts.bunny.net">
+    <link rel="preload" href="/images/logo.svg" as="image" type="image/svg+xml">
     <link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:400,600,700|rajdhani:700&display=swap" media="print" onload="this.media='all'">
     <noscript><link rel="stylesheet" href="https://fonts.bunny.net/css?family=inter:400,600,700|rajdhani:700&display=swap"></noscript>
     @vite(['resources/css/app.css'])
+    @stack('head')
+    @stack('jsonld')
 </head>
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
     <nav class="sticky top-0 z-50 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur-xl">
@@ -77,7 +105,7 @@
 
     <footer class="mt-16 border-t border-slate-800 bg-slate-900">
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <div class="grid gap-8 md:grid-cols-4">
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
                 <div>
                     <x-brand-logo size="sm" />
                     <p class="mt-4 text-sm leading-relaxed text-slate-400">{{ config('site.tagline') }}. Your trusted source for auto and motorcycle modifications across Pakistan.</p>
@@ -87,15 +115,26 @@
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
                         <li><a href="{{ route('products.index') }}" class="transition hover:text-orange-400">All Parts & Mods</a></li>
                         <li><a href="{{ route('products.index', ['sort' => 'price_low']) }}" class="transition hover:text-orange-400">Deals & Offers</a></li>
+                        <li><a href="{{ route('sitemap.html') }}" class="transition hover:text-orange-400">Sitemap</a></li>
                         <li><a href="{{ route('cart.index') }}" class="transition hover:text-orange-400">Shopping Cart</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-display text-lg font-bold text-white">Categories</h4>
+                    <ul class="mt-3 space-y-2 text-sm text-slate-400">
+                        @forelse($footerCategories ?? [] as $category)
+                            <li>
+                                <a href="{{ route('products.index', ['category' => $category->slug]) }}" class="transition hover:text-orange-400">{{ $category->name }}</a>
+                            </li>
+                        @empty
+                            <li><a href="{{ route('products.index') }}" class="transition hover:text-orange-400">All Products</a></li>
+                        @endforelse
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-display text-lg font-bold text-white">Payments</h4>
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
-                        <li>JazzCash</li>
-                        <li>Stripe (Card)</li>
-                        <li>Bank Transfer</li>
+                        <li>EasyPaisa</li>
                         <li>Cash on Delivery</li>
                     </ul>
                 </div>
@@ -103,8 +142,13 @@
                     <h4 class="font-display text-lg font-bold text-white">Contact</h4>
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
                         <li><a href="mailto:{{ config('site.email') }}" class="font-medium text-orange-400 transition hover:text-orange-300">{{ config('site.email') }}</a></li>
+                        <li>
+                            <a href="https://wa.me/{{ config('site.whatsapp') }}?text={{ rawurlencode(config('site.whatsapp_message')) }}" target="_blank" rel="noopener noreferrer" class="transition hover:text-[#25D366]">
+                                WhatsApp {{ config('site.whatsapp_display') }}
+                            </a>
+                        </li>
                         <li><a href="https://{{ config('site.domain') }}" class="transition hover:text-orange-400">{{ config('site.domain') }}</a></li>
-                        <li>Karachi, Pakistan</li>
+                        <li>{{ config('site.office_city') }}, {{ config('site.office_country') }}</li>
                     </ul>
                 </div>
             </div>
@@ -113,5 +157,7 @@
             </div>
         </div>
     </footer>
+
+    <x-whatsapp-float />
 </body>
 </html>

@@ -1,6 +1,7 @@
 @extends('layouts.shop')
 
 @section('title', 'Track Order')
+@section('robots', 'noindex, follow')
 
 @section('content')
 <div class="mx-auto max-w-lg px-4 py-12 sm:px-6 lg:px-8">
