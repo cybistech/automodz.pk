@@ -6,8 +6,8 @@ cd "$APP_DIR"
 
 echo "==> Deploying $(basename "$APP_DIR")..."
 
-# Laravel standard: these files are server-managed and must never be overwritten by deploy.
-SERVER_MANAGED=(.env .htaccess vendor)
+# Laravel standard: server-managed files (gitignored). Vendor is rebuilt by composer after pull.
+SERVER_MANAGED_FILES=(.env .htaccess)
 
 ensure_server_file() {
     local file="$1"
@@ -33,22 +33,27 @@ if [[ ! -f .htaccess ]]; then
 fi
 
 if [[ "${SKIP_GIT_PULL:-0}" != "1" ]] && git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "==> Pulling latest changes (preserving .env, .htaccess, vendor)..."
+    echo "==> Pulling latest changes (preserving .env, .htaccess)..."
 
-    declare -A BACKUPS=()
-    for file in "${SERVER_MANAGED[@]}"; do
-        if [[ -e "$file" ]]; then
-            BACKUPS[$file]=$(mktemp)
-            cp -a "$file" "${BACKUPS[$file]}"
+    BACKUP_DIR=$(mktemp -d)
+    trap 'rm -rf "$BACKUP_DIR"' EXIT
+
+    for file in "${SERVER_MANAGED_FILES[@]}"; do
+        if [[ -f "$file" ]]; then
+            cp -a "$file" "$BACKUP_DIR/$file"
         fi
     done
 
     git pull --ff-only origin main
 
-    for file in "${!BACKUPS[@]}"; do
-        cp -a "${BACKUPS[$file]}" "$file"
-        rm -f "${BACKUPS[$file]}"
+    for file in "${SERVER_MANAGED_FILES[@]}"; do
+        if [[ -f "$BACKUP_DIR/$file" ]]; then
+            cp -a "$BACKUP_DIR/$file" "$file"
+        fi
     done
+
+    rm -rf "$BACKUP_DIR"
+    trap - EXIT
 fi
 
 echo "==> Installing PHP dependencies (vendor is built on server, never deployed)..."

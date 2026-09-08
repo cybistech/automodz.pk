@@ -142,11 +142,11 @@ class ProductController extends Controller
 
     private function handleImages(Request $request, ?string $productName = null): array
     {
-        if (! $request->hasFile('images')) {
+        $files = $request->file('images');
+
+        if ($files === null) {
             return [];
         }
-
-        $files = $request->file('images');
 
         if (! is_array($files)) {
             $files = [$files];
@@ -158,9 +158,15 @@ class ProductController extends Controller
                 'products',
                 $productName ?? $request->input('name'),
             );
+        } catch (ValidationException $e) {
+            throw $e;
         } catch (Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('Product image upload failed', [
+                'error' => $e->getMessage(),
+            ]);
+
             throw ValidationException::withMessages([
-                'images' => $e->getMessage(),
+                'images' => 'Image upload failed: '.$e->getMessage(),
             ]);
         }
     }
