@@ -14,4 +14,10 @@ return [
 
     'format' => env('MEDIA_FORMAT', 'webp'),
 
+    'watermark' => [
+        'enabled' => env('MEDIA_WATERMARK', true),
+        'text' => env('MEDIA_WATERMARK_TEXT', 'AutoModz.pk'),
+        'font' => env('MEDIA_WATERMARK_FONT', resource_path('fonts/DejaVuSans.ttf')),
+    ],
+
 ];

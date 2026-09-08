@@ -73,6 +73,11 @@ class CategoryController extends Controller
         $data['slug'] = Str::slug($data['name']);
         $data['is_active'] = $request->boolean('is_active', true);
 
+        if ($request->boolean('remove_image') && $category->image && ! $request->hasFile('image')) {
+            Storage::disk('public')->delete($category->image);
+            $data['image'] = null;
+        }
+
         if ($request->hasFile('image')) {
             if ($category->image) {
                 Storage::disk('public')->delete($category->image);

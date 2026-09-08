@@ -20,6 +20,7 @@ class HomeController extends Controller
             'saleProducts' => ProductCache::hydrate($cached['saleProducts'] ?? []),
             'categories' => $this->hydrateCategories($cached['categories'] ?? []),
             'newArrivals' => ProductCache::hydrate($cached['newArrivals'] ?? []),
+            'activeProductCount' => (int) ($cached['activeProductCount'] ?? Product::active()->count()),
         ]);
     }
 
@@ -44,6 +45,7 @@ class HomeController extends Controller
             'newArrivals' => ProductCache::serialize(
                 Product::active()->forListing()->latest()->take(8)->get()
             ),
+            'activeProductCount' => Product::active()->count(),
         ];
     }
 

@@ -14,7 +14,7 @@
 </head>
 <body class="min-h-screen bg-slate-950 font-sans text-slate-100 antialiased">
     <div class="flex min-h-screen">
-        <aside class="hidden w-64 flex-shrink-0 border-r border-slate-800 bg-slate-900 lg:block">
+        <aside class="hidden w-64 flex-shrink-0 flex-col border-r border-slate-800 bg-slate-900 lg:flex">
             <div class="p-6">
                 <a href="{{ route('admin.dashboard') }}" class="inline-flex shrink-0 overflow-visible">
                     <x-brand-logo size="sm" :show-tagline="false" />
@@ -24,18 +24,35 @@
             <nav class="space-y-1 px-4">
                 <a href="{{ route('admin.dashboard') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.dashboard') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Dashboard</a>
                 <a href="{{ route('admin.products.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.products.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Products</a>
+                <a href="{{ route('admin.reviews.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.reviews.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Reviews</a>
                 <a href="{{ route('admin.categories.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.categories.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Categories</a>
                 <a href="{{ route('admin.shipping-cities.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.shipping-cities.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Shipping</a>
                 <a href="{{ route('admin.orders.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.orders.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Orders</a>
                 <a href="{{ route('home') }}" class="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-slate-800">View Store</a>
             </nav>
+            <div class="mt-auto border-t border-slate-800 p-4">
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="block w-full rounded-lg px-4 py-2.5 text-left text-sm text-slate-400 transition hover:bg-slate-800 hover:text-red-300">
+                        Log out
+                    </button>
+                </form>
+            </div>
         </aside>
 
         <div class="flex-1">
             <header class="border-b border-slate-800 bg-slate-900/50 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h1 class="text-xl font-semibold">@yield('title', 'Dashboard')</h1>
-                    <span class="text-sm text-slate-400">{{ auth()->user()->name }}</span>
+                    <div class="flex items-center gap-3">
+                        <span class="text-sm text-slate-400">{{ auth()->user()->name }}</span>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="rounded-lg px-3 py-1.5 text-sm text-slate-300 transition hover:bg-slate-800 hover:text-red-300">
+                                Log out
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </header>
 

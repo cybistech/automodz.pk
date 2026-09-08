@@ -90,32 +90,81 @@ class ProductController extends Controller
                 fn ($item) => is_array($item) && isset($item['id'])
             ))
         );
-        $brands = collect(
-            ShopCache::rememberJson('shop.brands.v2', now()->addHour(), function () {
+
+        $categoryCounts = collect(
+            ShopCache::rememberJson('shop.category_counts.v1', now()->addMinutes(30), function () {
                 return Product::active()
-                    ->whereNotNull('brand')
-                    ->distinct()
-                    ->orderBy('brand')
-                    ->pluck('brand')
-                    ->values()
+                    ->selectRaw('category_id, COUNT(*) as aggregate')
+                    ->groupBy('category_id')
+                    ->pluck('aggregate', 'category_id')
                     ->all();
             })
         );
 
+        $brandCountsQuery = Product::active()->whereNotNull('brand')->where('brand', '!=', '');
+        if ($activeCategory) {
+            $brandCountsQuery->where('category_id', $activeCategory->id);
+        }
+        $brandCounts = $brandCountsQuery
+            ->selectRaw('brand, COUNT(*) as aggregate')
+            ->groupBy('brand')
+            ->orderBy('brand')
+            ->pluck('aggregate', 'brand');
+
+        $brands = $brandCounts->keys();
+
+        $seoImage = null;
+        $seoImageAlt = null;
+        $firstWithImage = $products->getCollection()->first(fn (Product $product) => filled($product->primary_image));
+        if ($firstWithImage) {
+            $seoImage = Seo::absolute($firstWithImage->imageUrl());
+            $seoImageAlt = $firstWithImage->imageAlt();
+        } else {
+            $banner = Seo::mainBanner();
+            $seoImage = Seo::absolute($banner['src']);
+            $seoImageAlt = $activeCategory?->name
+                ? $activeCategory->name.' — '.$banner['alt']
+                : $banner['alt'];
+        }
+
+        $activeFilters = collect([
+            request()->filled('search') ? ['key' => 'search', 'label' => 'Search', 'value' => request('search')] : null,
+            $activeCategory ? ['key' => 'category', 'label' => 'Category', 'value' => $activeCategory->name] : null,
+            request()->filled('brand') ? ['key' => 'brand', 'label' => 'Brand', 'value' => request('brand')] : null,
+            request()->filled('sort') && request('sort') !== 'latest'
+                ? ['key' => 'sort', 'label' => 'Sort', 'value' => match (request('sort')) {
+                    'price_low' => 'Price: Low to High',
+                    'price_high' => 'Price: High to Low',
+                    'name' => 'Name A–Z',
+                    default => request('sort'),
+                }] : null,
+        ])->filter()->values();
+
         return view('shop.products.index', compact(
             'products',
             'categories',
+            'categoryCounts',
             'brands',
+            'brandCounts',
             'activeCategory',
+            'activeFilters',
             'seoTitle',
             'seoDescription',
             'seoKeywords',
+            'seoImage',
+            'seoImageAlt',
         ));
     }
 
     public function show(string $slug)
     {
-        $product = Product::active()->with('category:id,name,slug')->where('slug', $slug)->firstOrFail();
+        $product = Product::active()
+            ->with([
+                'category:id,name,slug',
+                'approvedReviews' => fn ($q) => $q->latest()->take(50),
+            ])
+            ->where('slug', $slug)
+            ->firstOrFail();
 
         $viewKey = 'viewed_product_'.$product->id;
         if (! session()->has($viewKey)) {
@@ -130,11 +179,17 @@ class ProductController extends Controller
             ->take(4)
             ->get();
 
-        return view('shop.products.show', compact('product', 'related'))
-            ->with('seo', [
-                'title' => $product->meta_title ?: $product->name.' | '.config('site.name'),
-                'description' => $product->meta_description ?: $product->short_description,
-                'keywords' => $product->meta_keywords,
-            ]);
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = \App\Models\ProductReview::query()
+                ->where('product_id', $product->id)
+                ->where(function ($q) {
+                    $q->where('user_id', auth()->id())
+                        ->orWhere('author_email', strtolower((string) auth()->user()->email));
+                })
+                ->first();
+        }
+
+        return view('shop.products.show', compact('product', 'related', 'userReview'));
     }
 }

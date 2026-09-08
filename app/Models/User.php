@@ -37,6 +37,11 @@ class User extends Authenticatable
         return $this->hasMany(SocialAccount::class);
     }
 
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(ProductReview::class);
+    }
+
     public function isAdmin(): bool
     {
         return (bool) $this->is_admin;

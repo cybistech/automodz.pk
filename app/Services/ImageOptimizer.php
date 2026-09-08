@@ -117,19 +117,13 @@ class ImageOptimizer
         $width = imagesx($source);
         $height = imagesy($source);
 
-        $main = $this->resizeCopy($source, $width, $height, $this->maxWidth, $this->maxHeight);
+        $main = $this->prepareVariant($source, $width, $height, $this->maxWidth, $this->maxHeight);
         $storedPath = $this->encodeImage($main, $directory, $basename, $this->quality);
+        imagedestroy($main);
 
-        if ($main !== $source) {
-            imagedestroy($main);
-        }
-
-        $thumb = $this->resizeCopy($source, $width, $height, $this->thumbWidth, $this->thumbWidth);
+        $thumb = $this->prepareVariant($source, $width, $height, $this->thumbWidth, $this->thumbWidth);
         $this->encodeImage($thumb, $directory.'/thumbs', $basename, $this->thumbQuality);
-
-        if ($thumb !== $source) {
-            imagedestroy($thumb);
-        }
+        imagedestroy($thumb);
 
         imagedestroy($source);
 
@@ -264,6 +258,149 @@ class ImageOptimizer
         imagecopyresampled($dest, $source, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
 
         return $dest;
+    }
+
+    /**
+     * @param  \GdImage|resource  $source
+     * @return \GdImage|resource
+     */
+    private function prepareVariant($source, int $width, int $height, int $maxWidth, int $maxHeight)
+    {
+        $variant = $this->resizeCopy($source, $width, $height, $maxWidth, $maxHeight);
+
+        if ($variant === $source) {
+            $variant = $this->duplicateImage($source);
+        }
+
+        $this->applyWatermark($variant);
+
+        return $variant;
+    }
+
+    /**
+     * @param  \GdImage|resource  $source
+     * @return \GdImage|resource
+     */
+    private function duplicateImage($source)
+    {
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $copy = imagecreatetruecolor($width, $height);
+        imagealphablending($copy, false);
+        imagesavealpha($copy, true);
+        $transparent = imagecolorallocatealpha($copy, 0, 0, 0, 127);
+        imagefilledrectangle($copy, 0, 0, $width, $height, $transparent);
+        imagealphablending($copy, true);
+        imagecopy($copy, $source, 0, 0, 0, 0, $width, $height);
+
+        return $copy;
+    }
+
+    /**
+     * @param  \GdImage|resource  $image
+     */
+    private function applyWatermark($image): void
+    {
+        if (! config('media.watermark.enabled', true)) {
+            return;
+        }
+
+        $text = trim((string) config('media.watermark.text', 'AutoModz.pk'));
+
+        if ($text === '') {
+            return;
+        }
+
+        imagealphablending($image, true);
+        imagesavealpha($image, true);
+
+        $width = imagesx($image);
+        $height = imagesy($image);
+        $fontPath = $this->watermarkFontPath();
+
+        if ($fontPath && function_exists('imagettftext')) {
+            $this->drawTrueTypeWatermark($image, $text, $fontPath, $width, $height);
+
+            return;
+        }
+
+        $this->drawBuiltInWatermark($image, $text, $width, $height);
+    }
+
+    /**
+     * @param  \GdImage|resource  $image
+     */
+    private function drawTrueTypeWatermark($image, string $text, string $fontPath, int $width, int $height): void
+    {
+        $fontSize = max(11, min(42, (int) round($width * 0.038)));
+        $padding = max(10, (int) round($width * 0.022));
+        $bbox = imagettfbbox($fontSize, 0, $fontPath, $text);
+
+        if ($bbox === false) {
+            $this->drawBuiltInWatermark($image, $text, $width, $height);
+
+            return;
+        }
+
+        $minX = min($bbox[0], $bbox[2], $bbox[4], $bbox[6]);
+        $maxX = max($bbox[0], $bbox[2], $bbox[4], $bbox[6]);
+        $minY = min($bbox[1], $bbox[3], $bbox[5], $bbox[7]);
+        $maxY = max($bbox[1], $bbox[3], $bbox[5], $bbox[7]);
+        $x = $width - $padding - ($maxX - $minX) - $minX;
+        $y = $height - $padding - $maxY;
+
+        $boxPadX = (int) round($fontSize * 0.45);
+        $boxPadY = (int) round($fontSize * 0.35);
+        $overlay = imagecolorallocatealpha($image, 15, 23, 42, 72);
+        imagefilledrectangle(
+            $image,
+            $x + $minX - $boxPadX,
+            $y + $minY - $boxPadY,
+            $x + $maxX + $boxPadX,
+            $y + $maxY + $boxPadY,
+            $overlay
+        );
+
+        $shadow = imagecolorallocatealpha($image, 0, 0, 0, 50);
+        $fill = imagecolorallocatealpha($image, 255, 255, 255, 12);
+        imagettftext($image, $fontSize, 0, $x + 1, $y + 1, $shadow, $fontPath, $text);
+        imagettftext($image, $fontSize, 0, $x, $y, $fill, $fontPath, $text);
+    }
+
+    /**
+     * @param  \GdImage|resource  $image
+     */
+    private function drawBuiltInWatermark($image, string $text, int $width, int $height): void
+    {
+        $font = 5;
+        $textWidth = imagefontwidth($font) * strlen($text);
+        $textHeight = imagefontheight($font);
+        $padding = 8;
+        $x = max(0, $width - $textWidth - $padding);
+        $y = max(0, $height - $textHeight - $padding);
+        $overlay = imagecolorallocatealpha($image, 15, 23, 42, 72);
+        imagefilledrectangle($image, $x - 4, $y - 3, $x + $textWidth + 4, $y + $textHeight + 3, $overlay);
+        $fill = imagecolorallocate($image, 255, 255, 255);
+        imagestring($image, $font, $x, $y, $text, $fill);
+    }
+
+    private function watermarkFontPath(): ?string
+    {
+        $configured = (string) config('media.watermark.font', resource_path('fonts/DejaVuSans.ttf'));
+        $candidates = array_filter([
+            $configured,
+            resource_path('fonts/DejaVuSans.ttf'),
+            '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
+            '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
+        ]);
+
+        foreach ($candidates as $path) {
+            if (is_readable($path)) {
+                return $path;
+            }
+        }
+
+        return null;
     }
 
     /**

@@ -1,10 +1,17 @@
 @extends('layouts.shop')
 
 @section('title', 'Home')
+@php
+    $homeBanner = \App\Support\Seo::mainBanner();
+@endphp
 @section('meta_title', config('site.name').' | Premium Auto & Motorcycle Mods Pakistan')
 @section('meta_description', config('site.description'))
 @section('meta_keywords', 'automodz, auto mods Pakistan, motorcycle parts, bike accessories, car mods, performance parts, automodz.pk')
 @section('canonical', route('home'))
+{{-- Prefer dedicated 1200×630 og-image; fall back path is main hero banner --}}
+@section('meta_image', \App\Support\Seo::defaultOgImage())
+@section('meta_image_alt', $homeBanner['alt'])
+@section('og_type', 'website')
 
 @push('jsonld')
     <x-json-ld :data="[
@@ -56,12 +63,13 @@
 @endpush
 
 @section('content')
-<section class="relative overflow-hidden bg-slate-950 hero-grid">
-    <div class="pointer-events-none absolute inset-0 bg-hero-glow"></div>
-    <div class="pointer-events-none absolute -right-24 top-0 h-96 w-96 rounded-full bg-orange-500/10 blur-3xl"></div>
-    <div class="pointer-events-none absolute -left-24 bottom-0 h-80 w-80 rounded-full bg-red-600/10 blur-3xl"></div>
+<section class="relative overflow-hidden bg-slate-950 hero-grid min-h-[620px] sm:min-h-[680px]">
+    <x-hero-ride-field />
+    <div class="pointer-events-none absolute inset-0 z-[1] bg-hero-glow opacity-60"></div>
+    <div class="pointer-events-none absolute -right-24 top-0 z-[1] h-96 w-96 rounded-full bg-orange-500/10 blur-3xl"></div>
+    <div class="pointer-events-none absolute -left-24 bottom-0 z-[1] h-80 w-80 rounded-full bg-red-600/10 blur-3xl"></div>
 
-    <div class="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+    <div class="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div class="grid items-center gap-12 lg:grid-cols-2">
             <div>
                 <span class="badge border border-orange-500/30 bg-orange-500/10 text-orange-300">
@@ -81,7 +89,7 @@
                 </div>
                 <dl class="mt-10 grid grid-cols-3 gap-4 border-t border-slate-800 pt-8">
                     <div>
-                        <dt class="font-display text-2xl font-bold text-white">500+</dt>
+                        <dt class="font-display text-2xl font-bold text-white">{{ number_format($activeProductCount) }}</dt>
                         <dd class="text-sm text-slate-400">Quality Parts</dd>
                     </div>
                     <div>
@@ -96,7 +104,7 @@
             </div>
 
             <div class="relative">
-                <div class="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-slate-900 via-slate-950 to-orange-950/40 p-8 shadow-brand">
+                <div class="relative overflow-hidden rounded-3xl border border-orange-500/20 bg-gradient-to-br from-slate-900/70 via-slate-950/60 to-orange-950/30 p-8 shadow-brand backdrop-blur-md">
                     <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(251,191,36,0.12),transparent_55%)]"></div>
                     <div class="relative flex flex-col items-center overflow-visible text-center">
                         <x-brand-logo size="xl" :show-tagline="false" class="items-center" />
@@ -227,7 +235,16 @@
     <div class="pointer-events-none absolute inset-0 bg-brand-gradient opacity-10"></div>
     <div class="relative mx-auto max-w-4xl px-4 text-center sm:px-6 lg:px-8">
         <h2 class="font-display text-3xl font-bold text-white sm:text-4xl">Ready to mod your ride?</h2>
-        <p class="mx-auto mt-4 max-w-2xl text-slate-300">Browse hundreds of premium parts or reach our team at <a href="mailto:{{ config('site.email') }}" class="font-semibold text-orange-400 hover:text-orange-300">{{ config('site.email') }}</a></p>
+        <p class="mx-auto mt-4 max-w-2xl text-slate-300">
+            @if($activeProductCount >= 100)
+                Browse {{ number_format($activeProductCount) }}+ premium parts
+            @elseif($activeProductCount > 0)
+                Browse {{ number_format($activeProductCount) }} premium {{ \Illuminate\Support\Str::plural('part', $activeProductCount) }}
+            @else
+                Browse premium auto & motorcycle parts
+            @endif
+            or reach our team at <a href="mailto:{{ config('site.email') }}" class="font-semibold text-orange-400 hover:text-orange-300">{{ config('site.email') }}</a>
+        </p>
         <div class="mt-8 flex flex-wrap justify-center gap-4">
             <a href="{{ route('products.index') }}" class="btn-primary">Start Shopping</a>
             <a href="mailto:{{ config('site.email') }}" class="btn-secondary">Contact Us</a>

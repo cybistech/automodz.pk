@@ -45,11 +45,12 @@ class ProductController extends Controller
     {
         $data = $this->validateProduct($request);
         $data['slug'] = Str::slug($data['name']);
-        $data['images'] = $this->handleImages($request, $data['name']);
+        $data['images'] = $this->syncImages($request, null, $data['name']);
         $data['video_path'] = $this->handleVideo($request);
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_active'] = $request->boolean('is_active', true);
         $data['specifications'] = $this->parseSpecifications($request);
+        $data['warranty'] = null;
 
         Product::create($data);
         ShopCache::flush();
@@ -71,12 +72,8 @@ class ProductController extends Controller
         $data['is_featured'] = $request->boolean('is_featured');
         $data['is_active'] = $request->boolean('is_active', true);
         $data['specifications'] = $this->parseSpecifications($request);
-
-        $newImages = $this->handleImages($request, $data['name']);
-        if (! empty($newImages)) {
-            $this->deleteProductImages($product->images ?? []);
-            $data['images'] = $newImages;
-        }
+        $data['warranty'] = null;
+        $data['images'] = $this->syncImages($request, $product, $data['name']);
 
         if ($request->hasFile('video_file')) {
             if ($product->video_path) {
@@ -128,7 +125,6 @@ class ProductController extends Controller
             'vehicle_model' => 'nullable|string|max:100',
             'vehicle_year_from' => 'nullable|string|max:4',
             'vehicle_year_to' => 'nullable|string|max:4',
-            'warranty' => 'nullable|string|max:100',
             'weight' => 'nullable|numeric|min:0',
             'video_url' => 'nullable|url|max:500',
             'meta_title' => 'nullable|string|max:255',
@@ -136,8 +132,52 @@ class ProductController extends Controller
             'meta_keywords' => 'nullable|string|max:500',
             'images' => 'nullable|array',
             'images.*' => 'nullable|image|mimes:jpeg,jpg,png,gif,webp|max:8192',
+            'existing_images' => 'nullable|array',
+            'existing_images.*' => 'nullable|string|max:500',
+            'primary_image' => 'nullable|string|max:500',
             'video_file' => 'nullable|mimes:mp4,webm,mov|max:51200',
         ]);
+    }
+
+    /**
+     * Keep / reorder / delete existing images, append new uploads, and put the main image first.
+     *
+     * @return list<string>
+     */
+    private function syncImages(Request $request, ?Product $product, string $productName): array
+    {
+        $current = array_values($product?->images ?? []);
+        $kept = [];
+
+        foreach ($request->input('existing_images', []) as $path) {
+            if (! is_string($path) || $path === '') {
+                continue;
+            }
+
+            if (in_array($path, $current, true) && ! in_array($path, $kept, true)) {
+                $kept[] = $path;
+            }
+        }
+
+        // On create there are no existing images; on update, omitted paths are deleted.
+        if ($product) {
+            $removed = array_values(array_diff($current, $kept));
+            $this->deleteProductImages($removed);
+        }
+
+        $uploaded = $this->handleImages($request, $productName);
+        $images = array_values(array_unique([...$kept, ...$uploaded]));
+
+        $primary = $request->input('primary_image');
+
+        if (is_string($primary) && $primary !== '' && in_array($primary, $images, true)) {
+            $images = array_values(array_unique([
+                $primary,
+                ...array_filter($images, fn (string $path) => $path !== $primary),
+            ]));
+        }
+
+        return $images;
     }
 
     private function handleImages(Request $request, ?string $productName = null): array
@@ -174,6 +214,10 @@ class ProductController extends Controller
     private function deleteProductImages(array $images): void
     {
         foreach ($images as $image) {
+            if (! is_string($image) || $image === '') {
+                continue;
+            }
+
             Storage::disk('public')->delete($image);
             Storage::disk('public')->delete(Product::thumbPathFor($image));
         }

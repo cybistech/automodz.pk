@@ -33,6 +33,11 @@
                 <p class="text-xs font-medium uppercase tracking-wider text-orange-400">{{ $product->brand }}</p>
             @endif
             <h3 class="mt-1 font-semibold text-white line-clamp-2">{{ $product->name }}</h3>
+            @if(($product->rating_count ?? 0) > 0)
+                <div class="mt-2">
+                    <x-star-rating :rating="$product->rating_avg" :count="$product->rating_count" />
+                </div>
+            @endif
             <p class="mt-1 text-xs text-slate-400">SKU: {{ $product->sku }}</p>
             <div class="mt-3 flex items-center justify-between">
                 <div>

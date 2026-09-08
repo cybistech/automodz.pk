@@ -13,10 +13,21 @@ class OrderController extends Controller
     public function index()
     {
         $orders = Order::where('user_id', auth()->id())
+            ->withCount('items')
+            ->when(
+                request()->filled('status'),
+                fn ($q) => $q->where('status', request('status'))
+            )
             ->latest()
-            ->paginate(10);
+            ->paginate(10)
+            ->withQueryString();
 
-        return view('shop.orders.index', compact('orders'));
+        $statusCounts = Order::where('user_id', auth()->id())
+            ->selectRaw('status, COUNT(*) as aggregate')
+            ->groupBy('status')
+            ->pluck('aggregate', 'status');
+
+        return view('shop.orders.index', compact('orders', 'statusCounts'));
     }
 
     public function show(Order $order)

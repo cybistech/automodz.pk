@@ -59,4 +59,101 @@ class Order extends Model
     {
         return $this->payment_status === 'paid';
     }
+
+    /** @return list<string> */
+    public static function fulfillmentSteps(): array
+    {
+        return ['pending', 'confirmed', 'processing', 'shipped', 'delivered'];
+    }
+
+    public function statusLabel(): string
+    {
+        return match ($this->status) {
+            'pending' => 'Pending',
+            'confirmed' => 'Confirmed',
+            'processing' => 'Processing',
+            'shipped' => 'Shipped',
+            'delivered' => 'Delivered',
+            'cancelled' => 'Cancelled',
+            default => ucfirst((string) $this->status),
+        };
+    }
+
+    public function paymentStatusLabel(): string
+    {
+        return match ($this->payment_status) {
+            'pending' => 'Payment Pending',
+            'paid' => 'Paid',
+            'failed' => 'Payment Failed',
+            'refunded' => 'Refunded',
+            default => ucfirst((string) $this->payment_status),
+        };
+    }
+
+    public function statusBadgeClass(): string
+    {
+        return match ($this->status) {
+            'pending' => 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30',
+            'confirmed' => 'bg-sky-500/15 text-sky-300 border-sky-500/30',
+            'processing' => 'bg-orange-500/15 text-orange-300 border-orange-500/30',
+            'shipped' => 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
+            'delivered' => 'bg-green-500/15 text-green-300 border-green-500/30',
+            'cancelled' => 'bg-red-500/15 text-red-300 border-red-500/30',
+            default => 'bg-slate-700/80 text-slate-300 border-slate-600/50',
+        };
+    }
+
+    public function paymentBadgeClass(): string
+    {
+        return match ($this->payment_status) {
+            'paid' => 'bg-green-500/15 text-green-300 border-green-500/30',
+            'pending' => 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30',
+            'failed' => 'bg-red-500/15 text-red-300 border-red-500/30',
+            'refunded' => 'bg-slate-500/15 text-slate-300 border-slate-500/30',
+            default => 'bg-slate-700/80 text-slate-300 border-slate-600/50',
+        };
+    }
+
+    /**
+     * Timeline steps for customer-facing order tracking.
+     *
+     * @return list<array{key: string, label: string, state: 'complete'|'current'|'upcoming'|'cancelled'}>
+     */
+    public function statusTimeline(): array
+    {
+        if ($this->status === 'cancelled') {
+            return [
+                ['key' => 'pending', 'label' => 'Placed', 'state' => 'complete'],
+                ['key' => 'cancelled', 'label' => 'Cancelled', 'state' => 'cancelled'],
+            ];
+        }
+
+        $steps = self::fulfillmentSteps();
+        $currentIndex = array_search($this->status, $steps, true);
+        if ($currentIndex === false) {
+            $currentIndex = 0;
+        }
+
+        return collect($steps)->map(function (string $key, int $index) use ($currentIndex) {
+            $state = 'upcoming';
+            if ($index < $currentIndex) {
+                $state = 'complete';
+            } elseif ($index === $currentIndex) {
+                $state = 'current';
+            }
+
+            return [
+                'key' => $key,
+                'label' => match ($key) {
+                    'pending' => 'Placed',
+                    'confirmed' => 'Confirmed',
+                    'processing' => 'Processing',
+                    'shipped' => 'Shipped',
+                    'delivered' => 'Delivered',
+                    default => ucfirst($key),
+                },
+                'state' => $state,
+            ];
+        })->values()->all();
+    }
 }

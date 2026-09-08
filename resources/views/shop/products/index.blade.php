@@ -5,6 +5,9 @@
 @section('meta_description', $seoDescription)
 @section('meta_keywords', $seoKeywords)
 @section('canonical', \App\Support\Seo::listingCanonical(request()))
+@section('og_type', 'website')
+@section('meta_image', $seoImage)
+@section('meta_image_alt', $seoImageAlt)
 @if(request()->filled('search'))
 @section('robots', 'noindex, follow')
 @endif
@@ -65,43 +68,14 @@
     ])" />
 
     <div class="flex flex-col gap-8 lg:flex-row">
-        <aside class="lg:w-64 flex-shrink-0">
-            <div class="card p-5">
-                <h2 class="font-semibold text-white">Filters</h2>
-                <form method="GET" class="mt-4 space-y-4">
-                    <div>
-                        <label class="text-sm text-slate-400" for="filter-category">Category</label>
-                        <select id="filter-category" name="category" class="input-field mt-1" onchange="this.form.submit()">
-                            <option value="">All Categories</option>
-                            @foreach($categories as $category)
-                                <option value="{{ $category->slug }}" @selected(request('category') === $category->slug)>{{ $category->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm text-slate-400" for="filter-brand">Brand</label>
-                        <select id="filter-brand" name="brand" class="input-field mt-1" onchange="this.form.submit()">
-                            <option value="">All Brands</option>
-                            @foreach($brands as $brand)
-                                <option value="{{ $brand }}" @selected(request('brand') === $brand)>{{ $brand }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                    <div>
-                        <label class="text-sm text-slate-400" for="filter-sort">Sort By</label>
-                        <select id="filter-sort" name="sort" class="input-field mt-1" onchange="this.form.submit()">
-                            <option value="latest" @selected(request('sort', 'latest') === 'latest')>Latest</option>
-                            <option value="price_low" @selected(request('sort') === 'price_low')>Price: Low to High</option>
-                            <option value="price_high" @selected(request('sort') === 'price_high')>Price: High to Low</option>
-                            <option value="name" @selected(request('sort') === 'name')>Name</option>
-                        </select>
-                    </div>
-                    @if(request('search'))
-                        <input type="hidden" name="search" value="{{ request('search') }}">
-                    @endif
-                </form>
-            </div>
-        </aside>
+        <x-shop-filters
+            :categories="$categories"
+            :category-counts="$categoryCounts"
+            :brands="$brands"
+            :brand-counts="$brandCounts"
+            :active-category="$activeCategory"
+            :active-filters="$activeFilters"
+        />
 
         <div class="flex-1">
             <header>
@@ -122,7 +96,34 @@
                         Fast delivery across Pakistan from {{ config('site.office_city') }}. EasyPaisa and cash on delivery accepted.
                     </p>
                 @endif
-                <p class="mt-2 text-sm text-slate-500">{{ $products->total() }} products</p>
+
+                <div class="mt-4 flex flex-wrap items-center gap-2">
+                    <p class="text-sm text-slate-500">
+                        <span class="font-semibold text-slate-300">{{ $products->total() }}</span>
+                        {{ Str::plural('product', $products->total()) }}
+                        @if(request('brand'))
+                            · <span class="text-orange-300">{{ request('brand') }}</span>
+                        @endif
+                    </p>
+                </div>
+
+                @if($activeFilters->isNotEmpty())
+                    <div class="mt-4 flex flex-wrap items-center gap-2">
+                        @foreach($activeFilters as $filter)
+                            @php
+                                $chipQuery = request()->except([$filter['key'], 'page']);
+                            @endphp
+                            <a href="{{ route('products.index', $chipQuery) }}" class="filter-chip" title="Remove {{ $filter['label'] }} filter">
+                                <span class="text-orange-400/80">{{ $filter['label'] }}:</span>
+                                <span>{{ $filter['value'] }}</span>
+                                <svg class="h-3.5 w-3.5 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </a>
+                        @endforeach
+                        <a href="{{ route('products.index', array_filter(['search' => request('search')])) }}" class="text-xs font-semibold text-slate-400 underline-offset-2 transition hover:text-orange-400 hover:underline">
+                            Clear all
+                        </a>
+                    </div>
+                @endif
             </header>
 
             <div class="mt-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -131,6 +132,7 @@
                 @empty
                     <div class="col-span-full card p-12 text-center">
                         <p class="text-slate-400">No products found. Try adjusting your filters.</p>
+                        <a href="{{ route('products.index') }}" class="btn-secondary mt-6 inline-flex">Reset filters</a>
                     </div>
                 @endforelse
             </div>

@@ -3,6 +3,10 @@
 @section('title', 'Sitemap')
 @section('meta_title', 'Sitemap | '.config('site.name'))
 @section('meta_description', 'Browse all pages, categories, and products on '.config('site.name').' — '.config('site.domain'))
+@section('canonical', route('sitemap.html'))
+@section('meta_image', \App\Support\Seo::defaultOgImage())
+@section('meta_image_alt', config('site.name').' — '.config('site.tagline'))
+@section('og_type', 'website')
 
 @section('content')
 <div class="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">

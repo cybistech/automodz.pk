@@ -90,36 +90,82 @@
         <label class="flex items-center gap-2"><input type="checkbox" name="is_active" value="1" @checked(old('is_active', $product?->is_active ?? true)) class="rounded text-orange-500"><span class="text-sm">Active</span></label>
     </div>
 
-    <div class="card p-6 space-y-4">
-        <h3 class="font-semibold">Media</h3>
-        <div>
-            <label class="text-sm text-slate-400">Product Images</label>
-            <input type="file" name="images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="mt-1 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500/20 file:px-3 file:py-2 file:text-orange-300">
-            <p class="mt-1 text-xs text-slate-500">JPG, PNG, or WebP up to 8MB each. Images are auto-compressed to lightweight WebP.</p>
+    <div class="card p-6 space-y-4 lg:col-span-2">
+        <h3 class="font-semibold">Product Images</h3>
+        <p class="text-xs text-slate-500">Upload multiple images, drag to reorder, set a main image, or tap ✕ to remove a saved or newly selected image.</p>
+
+        <div id="product-image-manager" class="space-y-4" data-primary="{{ old('primary_image', $product?->primary_image) }}">
+            <div id="existing-images" class="flex flex-wrap gap-2">
+                @php
+                    $existingImages = old('existing_images', $product?->images ?? []);
+                    $primaryImage = old('primary_image', $existingImages[0] ?? null);
+                @endphp
+                @foreach($existingImages as $index => $image)
+                    <div class="image-card group relative w-24" draggable="true" data-path="{{ $image }}">
+                        <input type="hidden" name="existing_images[]" value="{{ $image }}" class="existing-path">
+                        <div class="relative h-24 w-24 overflow-hidden rounded-lg border border-slate-700 bg-slate-950">
+                            <img
+                                src="{{ ($product ?? null)?->imageUrl($image, true) ?? \App\Support\StorageUrl::public($image) }}"
+                                alt="Product image {{ $index + 1 }}"
+                                class="h-full w-full object-cover"
+                                width="96"
+                                height="96"
+                                loading="lazy"
+                                decoding="async"
+                            >
+                            <span class="main-badge absolute left-1 top-1 rounded bg-orange-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white {{ $primaryImage === $image ? '' : 'hidden' }}">Main</span>
+                            <button type="button" class="remove-image absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/75 text-xs text-red-300 hover:bg-red-500 hover:text-white" title="Remove" aria-label="Remove image">✕</button>
+                            <span class="absolute bottom-1 left-1 cursor-grab text-xs text-slate-300" title="Drag to reorder">⠿</span>
+                        </div>
+                        <div class="mt-1 flex items-center justify-center gap-0.5">
+                            <label class="cursor-pointer rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-orange-300">
+                                <input type="radio" name="primary_image" value="{{ $image }}" class="primary-radio sr-only" @checked($primaryImage === $image)>
+                                Main
+                            </label>
+                            <button type="button" class="move-left rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-slate-200" title="Move left">←</button>
+                            <button type="button" class="move-right rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-slate-200" title="Move right">→</button>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+
+            <div id="no-images-hint" class="rounded-lg border border-dashed border-slate-700 px-4 py-8 text-center text-sm text-slate-500 {{ count($existingImages) ? 'hidden' : '' }}">
+                No images yet. Upload one or more below.
+            </div>
+
+            <div>
+                <label class="text-sm text-slate-400">Add images</label>
+                <input id="new-images-input" type="file" name="images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="mt-1 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500/20 file:px-3 file:py-2 file:text-orange-300">
+                <p class="mt-1 text-xs text-slate-500">JPG, PNG, GIF, or WebP up to 8MB each. Auto-compressed to lightweight WebP. First / main image is used on listings.</p>
+                <div id="new-images-preview" class="mt-3 flex flex-wrap gap-2"></div>
+            </div>
+
             @error('images')
-                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                <p class="text-sm text-red-400">{{ $message }}</p>
             @enderror
             @error('images.*')
-                <p class="mt-1 text-sm text-red-400">{{ $message }}</p>
+                <p class="text-sm text-red-400">{{ $message }}</p>
             @enderror
-            @if(isset($product) && $product?->images)
-                <div class="mt-2 flex gap-2">
-                    @foreach($product?->images as $index => $image)
-                        <img src="{{ $product->imageUrl($image, true) }}" alt="{{ $product->imageAlt($index) }}" title="{{ $product->imageAlt($index) }}" class="h-16 rounded object-cover" width="64" height="64" loading="lazy" decoding="async">
-                    @endforeach
-                </div>
-            @endif
+            @error('existing_images')
+                <p class="text-sm text-red-400">{{ $message }}</p>
+            @enderror
+            @error('primary_image')
+                <p class="text-sm text-red-400">{{ $message }}</p>
+            @enderror
         </div>
-        <div>
-            <label class="text-sm text-slate-400">Video URL (YouTube/Vimeo)</label>
-            <input type="url" name="video_url" value="{{ old('video_url', $product?->video_url ?? '') }}" class="input-field mt-1" placeholder="https://youtube.com/watch?v=...">
-        </div>
-        <div>
-            <label class="text-sm text-slate-400">Or Upload Video (MP4, max 50MB)</label>
-            <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" class="mt-1 text-sm text-slate-400">
-            @if(isset($product) && $product?->video_path)
-                <p class="mt-1 text-xs text-green-400">Video uploaded</p>
-            @endif
+
+        <div class="grid gap-4 sm:grid-cols-2">
+            <div>
+                <label class="text-sm text-slate-400">Video URL (YouTube/Vimeo)</label>
+                <input type="url" name="video_url" value="{{ old('video_url', $product?->video_url ?? '') }}" class="input-field mt-1" placeholder="https://youtube.com/watch?v=...">
+            </div>
+            <div>
+                <label class="text-sm text-slate-400">Or Upload Video (MP4, max 50MB)</label>
+                <input type="file" name="video_file" accept="video/mp4,video/webm,video/quicktime" class="mt-1 text-sm text-slate-400">
+                @if(isset($product) && $product?->video_path)
+                    <p class="mt-1 text-xs text-green-400">Video uploaded</p>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -162,4 +208,187 @@ function addSpec() {
     div.innerHTML = '<input type="text" name="spec_keys[]" placeholder="Key" class="input-field"><input type="text" name="spec_values[]" placeholder="Value" class="input-field">';
     container.appendChild(div);
 }
+
+(function () {
+    const manager = document.getElementById('product-image-manager');
+    if (!manager) return;
+
+    const list = document.getElementById('existing-images');
+    const emptyHint = document.getElementById('no-images-hint');
+    const fileInput = document.getElementById('new-images-input');
+    const preview = document.getElementById('new-images-preview');
+    let dragCard = null;
+    let selectedFiles = [];
+    let previewUrls = [];
+    let syncingFiles = false;
+
+    function cards() {
+        return Array.from(list.querySelectorAll('.image-card'));
+    }
+
+    function refreshEmptyState() {
+        emptyHint.classList.toggle('hidden', cards().length > 0);
+    }
+
+    function refreshMainBadges() {
+        const selected = manager.querySelector('.primary-radio:checked');
+        cards().forEach((card) => {
+            const path = card.dataset.path;
+            const isMain = selected && selected.value === path;
+            card.querySelector('.main-badge')?.classList.toggle('hidden', !isMain);
+            const radio = card.querySelector('.primary-radio');
+            if (radio) radio.checked = !!isMain;
+        });
+
+        if (!selected && cards().length) {
+            const first = cards()[0].querySelector('.primary-radio');
+            if (first) {
+                first.checked = true;
+                cards()[0].querySelector('.main-badge')?.classList.remove('hidden');
+            }
+        }
+    }
+
+    function moveCard(card, direction) {
+        const siblings = cards();
+        const index = siblings.indexOf(card);
+        const target = siblings[index + direction];
+        if (!target) return;
+        if (direction < 0) {
+            list.insertBefore(card, target);
+        } else {
+            list.insertBefore(target, card);
+        }
+        refreshMainBadges();
+    }
+
+    list.addEventListener('click', (event) => {
+        const card = event.target.closest('.image-card');
+        if (!card) return;
+
+        if (event.target.closest('.remove-image')) {
+            const wasChecked = card.querySelector('.primary-radio')?.checked;
+            card.remove();
+            if (wasChecked) refreshMainBadges();
+            refreshEmptyState();
+            return;
+        }
+
+        if (event.target.closest('.move-left')) {
+            moveCard(card, -1);
+            return;
+        }
+
+        if (event.target.closest('.move-right')) {
+            moveCard(card, 1);
+            return;
+        }
+    });
+
+    list.addEventListener('change', (event) => {
+        if (event.target.classList.contains('primary-radio')) {
+            refreshMainBadges();
+        }
+    });
+
+    list.addEventListener('dragstart', (event) => {
+        dragCard = event.target.closest('.image-card');
+        if (!dragCard) return;
+        dragCard.classList.add('opacity-60');
+        event.dataTransfer.effectAllowed = 'move';
+    });
+
+    list.addEventListener('dragend', () => {
+        dragCard?.classList.remove('opacity-60');
+        dragCard = null;
+        refreshMainBadges();
+    });
+
+    list.addEventListener('dragover', (event) => {
+        event.preventDefault();
+        const over = event.target.closest('.image-card');
+        if (!dragCard || !over || over === dragCard) return;
+        const rect = over.getBoundingClientRect();
+        const before = (event.clientX - rect.left) < rect.width / 2;
+        list.insertBefore(dragCard, before ? over : over.nextSibling);
+    });
+
+    function revokePreviewUrls() {
+        previewUrls.forEach((url) => URL.revokeObjectURL(url));
+        previewUrls = [];
+    }
+
+    function syncSelectedFiles() {
+        if (!fileInput) return;
+
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach((file) => dataTransfer.items.add(file));
+        syncingFiles = true;
+        fileInput.files = dataTransfer.files;
+        syncingFiles = false;
+        renderNewPreviews();
+    }
+
+    function renderNewPreviews() {
+        if (!preview) return;
+
+        revokePreviewUrls();
+        preview.innerHTML = '';
+
+        selectedFiles.forEach((file, index) => {
+            const url = URL.createObjectURL(file);
+            previewUrls.push(url);
+
+            const item = document.createElement('div');
+            item.className = 'relative w-24';
+
+            const wrap = document.createElement('div');
+            wrap.className = 'relative h-24 w-24 overflow-hidden rounded-lg border border-slate-700 bg-slate-950';
+
+            const img = document.createElement('img');
+            img.src = url;
+            img.alt = file.name;
+            img.className = 'h-full w-full object-cover';
+            img.width = 96;
+            img.height = 96;
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/75 text-xs text-red-300 hover:bg-red-500 hover:text-white';
+            removeBtn.title = 'Remove selected image';
+            removeBtn.setAttribute('aria-label', 'Remove selected image');
+            removeBtn.textContent = '✕';
+            removeBtn.addEventListener('click', () => {
+                selectedFiles.splice(index, 1);
+                syncSelectedFiles();
+            });
+
+            const name = document.createElement('p');
+            name.className = 'mt-1 truncate text-[10px] text-slate-500';
+            name.textContent = file.name;
+
+            wrap.appendChild(img);
+            wrap.appendChild(removeBtn);
+            item.appendChild(wrap);
+            item.appendChild(name);
+            preview.appendChild(item);
+        });
+    }
+
+    fileInput?.addEventListener('change', () => {
+        if (syncingFiles) return;
+
+        const incoming = Array.from(fileInput.files || []);
+        const isEcho = incoming.length === selectedFiles.length
+            && incoming.every((file, index) => file === selectedFiles[index]);
+
+        if (isEcho) return;
+
+        selectedFiles = [...selectedFiles, ...incoming];
+        syncSelectedFiles();
+    });
+
+    refreshEmptyState();
+    refreshMainBadges();
+})();
 </script>

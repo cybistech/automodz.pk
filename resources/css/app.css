@@ -6,6 +6,10 @@
     html {
         scroll-behavior: smooth;
     }
+
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 @layer components {
@@ -46,5 +50,107 @@
             linear-gradient(rgba(249, 115, 22, 0.04) 1px, transparent 1px),
             linear-gradient(90deg, rgba(249, 115, 22, 0.04) 1px, transparent 1px);
         background-size: 48px 48px;
+    }
+
+    .filter-option {
+        @apply flex items-center justify-between gap-3 rounded-xl border border-transparent px-3 py-2.5 text-sm text-slate-300 transition;
+    }
+
+    .filter-option:hover {
+        @apply border-slate-600/80 bg-slate-800/60 text-white;
+    }
+
+    .filter-option.is-active {
+        @apply border-orange-500/40 bg-orange-500/10 text-white shadow-[inset_0_0_0_1px_rgba(249,115,22,0.12)];
+    }
+
+    .filter-option__label {
+        @apply min-w-0 truncate font-medium;
+    }
+
+    .filter-option__count {
+        @apply shrink-0 rounded-md bg-slate-800 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-slate-400;
+    }
+
+    .filter-option.is-active .filter-option__count {
+        @apply bg-orange-500/20 text-orange-300;
+    }
+
+    .filter-sort {
+        @apply flex flex-col rounded-xl border border-slate-700/70 bg-slate-950/40 px-3 py-2.5 text-sm text-slate-300 transition hover:border-slate-500 hover:bg-slate-800/50 hover:text-white;
+    }
+
+    .filter-sort.is-active {
+        @apply border-orange-500/40 bg-orange-500/10 text-white;
+    }
+
+    .filter-chip {
+        @apply inline-flex items-center gap-1.5 rounded-full border border-orange-500/30 bg-orange-500/10 px-3 py-1 text-xs font-semibold text-orange-200 transition hover:border-orange-400/50 hover:bg-orange-500/20;
+    }
+
+    .filter-list {
+        scrollbar-width: thin;
+        scrollbar-color: rgb(71 85 105) transparent;
+    }
+}
+
+.hero-rides {
+    pointer-events: none;
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+}
+
+.hero-rides__slideshow {
+    position: absolute;
+    inset: 0;
+}
+
+.hero-rides__slide {
+    position: absolute;
+    inset: 0;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0;
+    transform: scale(1.04);
+    transition: opacity 2.4s ease-in-out;
+    will-change: opacity, transform;
+}
+
+.hero-rides__slide.is-active {
+    opacity: 1;
+    animation: hero-ken-burns 14s ease-out forwards;
+}
+
+.hero-rides__overlay {
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, rgba(2, 6, 23, 0.94) 0%, rgba(2, 6, 23, 0.78) 42%, rgba(2, 6, 23, 0.52) 68%, rgba(2, 6, 23, 0.72) 100%),
+        linear-gradient(180deg, rgba(2, 6, 23, 0.15) 0%, rgba(2, 6, 23, 0.55) 100%);
+}
+
+.hero-rides__vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 70% at 70% 40%, transparent 35%, rgba(2, 6, 23, 0.55) 100%);
+}
+
+@keyframes hero-ken-burns {
+    from { transform: scale(1.04); }
+    to { transform: scale(1.12); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hero-rides__slide {
+        animation: none !important;
+        transition: none !important;
+    }
+
+    .hero-rides__slide.is-active {
+        opacity: 1;
+        transform: none;
     }
 }

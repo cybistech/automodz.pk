@@ -16,6 +16,8 @@ use App\Http\Controllers\Shop\GuestOrderController;
 use App\Http\Controllers\Shop\HomeController;
 use App\Http\Controllers\Shop\OrderController;
 use App\Http\Controllers\Shop\ProductController;
+use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
+use App\Http\Controllers\Shop\ProductReviewController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
@@ -40,6 +42,9 @@ Route::get('/sitemap', [SitemapController::class, 'html'])->name('sitemap.html')
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::post('/products/{slug}/reviews', [ProductReviewController::class, 'store'])
+    ->middleware('throttle:5,1')
+    ->name('products.reviews.store');
 
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{product}', [CartController::class, 'add'])->name('cart.add');
@@ -79,6 +84,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::resource('categories', AdminCategoryController::class)->except(['show']);
     Route::resource('shipping-cities', AdminShippingCityController::class)->except(['show']);
     Route::resource('products', AdminProductController::class)->except(['show']);
+    Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
+    Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::patch('orders/{order}', [AdminOrderController::class, 'update'])->name('orders.update');

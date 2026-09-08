@@ -1,6 +1,10 @@
 @extends('layouts.shop')
 
 @section('title', 'Shopping Cart')
+@section('meta_title', 'Shopping Cart | '.config('site.name'))
+@section('meta_description', 'Review items in your '.config('site.name').' cart before checkout. EasyPaisa and cash on delivery available.')
+@section('meta_image', \App\Support\Seo::defaultOgImage())
+@section('meta_image_alt', config('site.name').' — '.config('site.tagline'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')

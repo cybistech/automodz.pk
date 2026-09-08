@@ -1,6 +1,10 @@
 @extends('layouts.shop')
 
 @section('title', 'Checkout')
+@section('meta_title', 'Checkout | '.config('site.name'))
+@section('meta_description', 'Secure checkout at '.config('site.domain').'. Pay with EasyPaisa or cash on delivery across Pakistan.')
+@section('meta_image', \App\Support\Seo::defaultOgImage())
+@section('meta_image_alt', config('site.name').' — '.config('site.tagline'))
 @section('robots', 'noindex, nofollow')
 
 @section('content')

@@ -1,6 +1,10 @@
 @extends('layouts.shop')
 
 @section('title', 'Track Order')
+@section('meta_title', 'Track Order | '.config('site.name'))
+@section('meta_description', 'Track your '.config('site.name').' order status with your order number and checkout email or phone.')
+@section('meta_image', \App\Support\Seo::defaultOgImage())
+@section('meta_image_alt', config('site.name').' — '.config('site.tagline'))
 @section('robots', 'noindex, follow')
 
 @section('content')

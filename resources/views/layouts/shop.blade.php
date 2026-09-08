@@ -4,45 +4,11 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('meta_title', trim(View::getSection('title', config('site.name')).' | '.config('site.domain')))</title>
-    <meta name="description" content="@yield('meta_description', config('site.description'))">
-    @hasSection('meta_keywords')
-        <meta name="keywords" content="@yield('meta_keywords')">
-    @else
-        <meta name="keywords" content="automodz, auto mods Pakistan, motorcycle parts, bike accessories, car mods, {{ config('site.domain') }}">
-    @endif
-    @if(config('seo.google_site_verification'))
-        <meta name="google-site-verification" content="{{ config('seo.google_site_verification') }}">
-    @endif
-    <meta name="geo.region" content="PK-PB">
-    <meta name="geo.placename" content="{{ config('site.office_city') }}">
-    <meta name="author" content="{{ config('site.name') }}">
-    <meta property="og:title" content="@yield('meta_title', config('site.name'))">
-    <meta property="og:description" content="@yield('meta_description', config('site.description'))">
-    <meta property="og:url" content="@yield('canonical', rtrim(config('site.url'), '/').request()->getPathInfo())">
-    <meta property="og:site_name" content="{{ config('site.name') }}">
-    <meta property="og:type" content="@yield('og_type', 'website')">
-    <meta property="og:locale" content="en_PK">
-    @hasSection('meta_image')
-        <meta property="og:image" content="@yield('meta_image')">
-        <meta property="og:image:alt" content="@yield('meta_image_alt', config('site.name'))">
-    @else
-        <meta property="og:image" content="{{ \App\Support\Seo::defaultOgImage() }}">
-        <meta property="og:image:alt" content="{{ config('site.name') }} — {{ config('site.tagline') }}">
-    @endif
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="@yield('meta_title', config('site.name'))">
-    <meta name="twitter:description" content="@yield('meta_description', config('site.description'))">
-    @hasSection('meta_image')
-        <meta name="twitter:image" content="@yield('meta_image')">
-    @else
-        <meta name="twitter:image" content="{{ \App\Support\Seo::defaultOgImage() }}">
-    @endif
-    <meta name="robots" content="@yield('robots', 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1')">
-    <link rel="canonical" href="@yield('canonical', rtrim(config('site.url'), '/').request()->getPathInfo())">
+    <x-seo-meta />
     <link rel="alternate" type="application/rss+xml" title="{{ config('site.name') }} Products" href="{{ route('feed.products') }}">
     <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ route('sitemap.index') }}">
     <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="image_src" href="{{ \App\Support\Seo::defaultOgImage() }}">
     <link rel="preconnect" href="https://fonts.bunny.net" crossorigin>
     <link rel="dns-prefetch" href="https://fonts.bunny.net">
     <link rel="preload" href="/images/logo.svg" as="image" type="image/svg+xml">
@@ -159,5 +125,6 @@
     </footer>
 
     <x-whatsapp-float />
+    @stack('scripts')
 </body>
 </html>

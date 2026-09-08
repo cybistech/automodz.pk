@@ -2,22 +2,27 @@
 
 <svg {{ $attributes->merge(['class' => $class]) }} viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <defs>
-        <linearGradient id="am-gradient" x1="12" y1="8" x2="60" y2="64" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FBBF24"/>
-            <stop offset="0.5" stop-color="#F97316"/>
-            <stop offset="1" stop-color="#EA580C"/>
+        <linearGradient id="am-icon-g" x1="8" y1="4" x2="68" y2="68" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FEF3C7"/>
+            <stop offset="0.4" stop-color="#FBBF24"/>
+            <stop offset="0.75" stop-color="#F97316"/>
+            <stop offset="1" stop-color="#DC2626"/>
         </linearGradient>
-        <linearGradient id="am-shine" x1="22" y1="16" x2="42" y2="36" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FFFFFF" stop-opacity="0.28"/>
+        <linearGradient id="am-icon-shine" x1="16" y1="12" x2="48" y2="40" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#FFFFFF" stop-opacity="0.45"/>
             <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
         </linearGradient>
     </defs>
-    <rect x="6" y="6" width="60" height="60" rx="14" fill="#0B1220"/>
-    <rect x="6.5" y="6.5" width="59" height="59" rx="13.5" stroke="url(#am-gradient)" stroke-opacity="0.5"/>
-    <path d="M16 50L24 26H29L37 50H32.5L31 45H22L20.5 50H16ZM23 40H30L26.5 29.5L23 40Z" fill="url(#am-gradient)"/>
-    <path d="M39 50V26H43L47 38L51 26H55V50H51V34L47 46L43 34V50H39Z" fill="url(#am-gradient)"/>
-    <path d="M44 14L56 26" stroke="url(#am-gradient)" stroke-width="2.5" stroke-linecap="round"/>
-    <path d="M48 14L58 24" stroke="url(#am-gradient)" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
-    <path d="M52 14L60 22" stroke="url(#am-gradient)" stroke-width="1.5" stroke-linecap="round" opacity="0.35"/>
-    <ellipse cx="28" cy="32" rx="9" ry="5" fill="url(#am-shine)" transform="rotate(-16 28 32)"/>
+    <rect x="1" y="1" width="70" height="70" rx="18" fill="#030712"/>
+    <rect x="1" y="1" width="70" height="70" rx="18" stroke="url(#am-icon-g)" stroke-width="1.75"/>
+    <rect x="5" y="5" width="62" height="62" rx="15" stroke="url(#am-icon-g)" stroke-width="0.75" opacity="0.28"/>
+    <circle cx="36" cy="52" r="14" stroke="url(#am-icon-g)" stroke-width="1.35" opacity="0.42"/>
+    <circle cx="36" cy="52" r="9" stroke="url(#am-icon-g)" stroke-width="0.85" opacity="0.22"/>
+    <path d="M36 38v28M22 52h28M26.5 42.5l19 19M45.5 42.5l-19 19M26.5 61.5l19-19M45.5 61.5l-19-19" stroke="url(#am-icon-g)" stroke-width="1.1" stroke-linecap="round" opacity="0.38"/>
+    <path d="M17 48.5 26.5 19h5.8L42 48.5h-5.6l-1.75-5.2H24.35l-1.75 5.2H17Zm8.35-10.4h9.5L29.5 24.2 25.35 38.1Z" fill="url(#am-icon-g)" fill-rule="evenodd"/>
+    <path d="M43.5 48.5V19h4.7l4.85 14.5L57.7 19h4.65v29.5h-4.65V32.8L51.2 46.8 46.15 32.8v15.7h-2.65Z" fill="url(#am-icon-g)"/>
+    <path d="M48 11.5 58.5 22" stroke="url(#am-icon-g)" stroke-width="2.75" stroke-linecap="round"/>
+    <path d="M52.5 10.5 61.5 19.5" stroke="url(#am-icon-g)" stroke-width="2" stroke-linecap="round" opacity="0.55"/>
+    <path d="M56.5 10.5 63.5 17.5" stroke="url(#am-icon-g)" stroke-width="1.35" stroke-linecap="round" opacity="0.28"/>
+    <ellipse cx="27" cy="28" rx="10" ry="5.5" fill="url(#am-icon-shine)" transform="rotate(-16 27 28)"/>
 </svg>
