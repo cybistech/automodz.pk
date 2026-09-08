@@ -6,7 +6,7 @@
         <div class="relative aspect-square overflow-hidden bg-slate-900">
             @if($product->primary_image)
                 <img
-                    src="{{ $product->imageUrl(null, $lazy) }}"
+                    src="{{ $product->imageUrl(null, true) }}"
                     alt="{{ $product->imageAlt() }}"
                     title="{{ $product->imageAlt() }}"
                     width="400"

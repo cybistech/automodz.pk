@@ -23,6 +23,16 @@ mkdir -p \
     storage/app/private \
     bootstrap/cache
 
+# Public URL path /uploads must point at storage/app/public (symlink).
+if [[ -L uploads ]]; then
+    echo "OK  uploads symlink exists -> $(readlink uploads)"
+elif [[ -e uploads ]]; then
+    echo "WARN uploads exists but is not a symlink; leave it alone"
+else
+    ln -s storage/app/public uploads
+    echo "OK  created uploads -> storage/app/public"
+fi
+
 touch storage/logs/laravel.log
 touch "storage/logs/laravel-$(date +%F).log" 2>/dev/null || true
 

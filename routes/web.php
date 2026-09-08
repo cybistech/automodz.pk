@@ -22,9 +22,19 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 
 Route::get('/uploads/{path}', function (string $path) {
+    $path = str_replace('\\', '/', $path);
+    $path = ltrim($path, '/');
+
+    abort_if($path === '' || str_contains($path, '..'), 404);
     abort_unless(Storage::disk('public')->exists($path), 404);
 
-    return response()->file(Storage::disk('public')->path($path), [
+    $absolute = Storage::disk('public')->path($path);
+    $real = realpath($absolute);
+    $root = realpath(Storage::disk('public')->path(''));
+
+    abort_unless($real && $root && str_starts_with($real, $root.DIRECTORY_SEPARATOR), 404);
+
+    return response()->file($real, [
         'Cache-Control' => 'public, max-age=31536000, immutable',
     ]);
 })->where('path', '.*')->name('uploads.public');

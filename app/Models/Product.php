@@ -118,9 +118,19 @@ class Product extends Model
             return null;
         }
 
+        $path = ltrim(str_replace('\\', '/', $path), '/');
+
         if ($thumb) {
             $thumbPath = self::thumbPathFor($path);
 
+            if (Storage::disk('public')->exists($thumbPath)) {
+                return StorageUrl::public($thumbPath);
+            }
+        }
+
+        if (! Storage::disk('public')->exists($path)) {
+            // Last resort: if DB points at a missing full image but thumb exists, use thumb.
+            $thumbPath = self::thumbPathFor($path);
             if (Storage::disk('public')->exists($thumbPath)) {
                 return StorageUrl::public($thumbPath);
             }

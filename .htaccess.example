@@ -13,9 +13,9 @@
     php_value max_execution_time 120
 </IfModule>
 
-<IfModule mod_rewrite.c>
+    <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        Options -MultiViews -Indexes
+        Options -MultiViews -Indexes +FollowSymLinks
     </IfModule>
 
     RewriteEngine On
@@ -26,7 +26,12 @@
     # Block direct web access to private application storage.
     RewriteRule ^storage(/|$) - [F,L]
 
-    # Serve public uploads from storage/app/public via /uploads URL.
+    # Prefer real /uploads symlink (uploads -> storage/app/public) when present.
+    # Fallback rewrite keeps older installs working without the symlink.
+    RewriteCond %{REQUEST_URI} ^/uploads/(.+)$ [NC]
+    RewriteCond %{DOCUMENT_ROOT}/uploads/%1 -f
+    RewriteRule ^uploads/(.+)$ - [L]
+
     RewriteCond %{REQUEST_URI} ^/uploads/(.+)$ [NC]
     RewriteCond %{DOCUMENT_ROOT}/storage/app/public/%1 -f
     RewriteRule ^uploads/(.+)$ storage/app/public/$1 [L]

@@ -75,7 +75,8 @@ return [
     */
 
     'links' => [
-        //
+        // Project is served from the app root (not /public), so /uploads must resolve here.
+        base_path('uploads') => storage_path('app/public'),
     ],
 
 ];

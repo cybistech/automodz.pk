@@ -147,6 +147,38 @@ class ImageOptimizer
         return $relative;
     }
 
+    /**
+     * Create / refresh a listing thumbnail for an already-stored public image.
+     */
+    public function regenerateThumb(string $relativePath): string
+    {
+        $relativePath = ltrim($relativePath, '/');
+
+        if (str_contains($relativePath, '/thumbs/')) {
+            throw new RuntimeException('Cannot regenerate thumb from a thumb path: '.$relativePath);
+        }
+
+        if (! Storage::disk('public')->exists($relativePath)) {
+            throw new RuntimeException('Source image missing: '.$relativePath);
+        }
+
+        $fullPath = Storage::disk('public')->path($relativePath);
+        $directory = trim(dirname($relativePath), '/.');
+        $basename = pathinfo($relativePath, PATHINFO_FILENAME);
+
+        $this->ensureDirectory($directory.'/thumbs');
+
+        $source = $this->loadImageFromPath($fullPath);
+        $width = imagesx($source);
+        $height = imagesy($source);
+        $thumb = $this->prepareVariant($source, $width, $height, $this->thumbWidth, $this->thumbWidth);
+        $stored = $this->encodeImage($thumb, $directory.'/thumbs', $basename, $this->thumbQuality);
+        imagedestroy($thumb);
+        imagedestroy($source);
+
+        return $stored;
+    }
+
     private function ensureDirectory(string $directory): void
     {
         Storage::disk('public')->makeDirectory($directory);
@@ -191,6 +223,51 @@ class ImageOptimizer
 
         if ($image === false) {
             throw new RuntimeException('Unsupported or corrupt image. Use JPG, PNG, GIF, or WebP under 8MB.');
+        }
+
+        if (! imageistruecolor($image)) {
+            @imagepalettetotruecolor($image);
+        }
+
+        imagealphablending($image, true);
+        imagesavealpha($image, true);
+
+        return $image;
+    }
+
+    /**
+     * @return \GdImage|resource
+     */
+    private function loadImageFromPath(string $path)
+    {
+        if (! is_readable($path)) {
+            throw new RuntimeException('Image is not readable: '.$path);
+        }
+
+        $mime = '';
+        if (function_exists('mime_content_type')) {
+            $mime = strtolower((string) @mime_content_type($path));
+        }
+        if ($mime === '' || $mime === 'application/octet-stream') {
+            $mime = match (strtolower(pathinfo($path, PATHINFO_EXTENSION))) {
+                'jpg', 'jpeg' => 'image/jpeg',
+                'png' => 'image/png',
+                'gif' => 'image/gif',
+                'webp' => 'image/webp',
+                default => '',
+            };
+        }
+
+        $image = match (true) {
+            str_contains($mime, 'jpeg'), str_contains($mime, 'jpg') => @imagecreatefromjpeg($path),
+            str_contains($mime, 'png') => @imagecreatefrompng($path),
+            str_contains($mime, 'gif') => @imagecreatefromgif($path),
+            str_contains($mime, 'webp') => function_exists('imagecreatefromwebp') ? @imagecreatefromwebp($path) : false,
+            default => false,
+        };
+
+        if ($image === false) {
+            throw new RuntimeException('Unsupported or corrupt image: '.$path);
         }
 
         if (! imageistruecolor($image)) {
