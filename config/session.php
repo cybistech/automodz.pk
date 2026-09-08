@@ -101,7 +101,7 @@ return [
     |
     */
 
-    'store' => env('SESSION_STORE', 'failover'),
+    'store' => env('SESSION_STORE'),
 
     /*
     |--------------------------------------------------------------------------

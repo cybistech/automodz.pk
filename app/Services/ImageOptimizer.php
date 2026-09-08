@@ -196,7 +196,33 @@ class ImageOptimizer
         }
 
         if (! is_writable($path)) {
-            throw new RuntimeException("Upload directory is not writable: {$directory}. Run ./fix-permissions.sh on the server.");
+            @chmod($path, 0777);
+        }
+
+        // If a parent was created as root during deploy, try loosening parents too.
+        if (! is_writable($path)) {
+            $probe = $path;
+            for ($i = 0; $i < 4; $i++) {
+                @chmod($probe, 0777);
+                $probe = dirname($probe);
+                if ($probe === '/' || $probe === '.' || $probe === '') {
+                    break;
+                }
+            }
+        }
+
+        clearstatcache(true, $path);
+
+        if (! is_writable($path)) {
+            $owner = function_exists('posix_getpwuid') && function_exists('fileowner')
+                ? (posix_getpwuid(@fileowner($path))['name'] ?? 'unknown')
+                : 'unknown';
+            $perms = substr(sprintf('%o', @fileperms($path) ?: 0), -4);
+
+            throw new RuntimeException(
+                "Upload directory is not writable: {$directory} (owner={$owner}, perms={$perms}). ".
+                'On the server run: sudo ./fix-permissions.sh'
+            );
         }
     }
 
