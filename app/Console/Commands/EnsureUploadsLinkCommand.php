@@ -38,9 +38,16 @@ class EnsureUploadsLinkCommand extends Command
             if (is_link($link) || is_file($link)) {
                 File::delete($link);
             } elseif (is_dir($link)) {
-                $this->error("{$link} is a real directory. Move it aside before linking.");
+                $entries = array_diff(scandir($link) ?: [], ['.', '..']);
 
-                return self::FAILURE;
+                if ($entries !== []) {
+                    $this->error("{$link} is a real directory with files. Move contents to storage/app/public, then re-run with --force.");
+
+                    return self::FAILURE;
+                }
+
+                File::deleteDirectory($link);
+                $this->warn('Removed empty uploads/ directory so the symlink can be created.');
             }
         }
 
