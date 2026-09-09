@@ -137,7 +137,6 @@
                 <label class="text-sm text-slate-400">Add images</label>
                 <input id="new-images-input" type="file" name="images[]" accept="image/jpeg,image/png,image/gif,image/webp" multiple class="mt-1 block w-full text-sm text-slate-400 file:mr-3 file:rounded-lg file:border-0 file:bg-orange-500/20 file:px-3 file:py-2 file:text-orange-300">
                 <p class="mt-1 text-xs text-slate-500">JPG, PNG, GIF, or WebP up to 8MB each. Auto-compressed to lightweight WebP. First / main image is used on listings.</p>
-                <div id="new-images-preview" class="mt-3 flex flex-wrap gap-2"></div>
             </div>
 
             @error('images')
@@ -216,14 +215,26 @@ function addSpec() {
     const list = document.getElementById('existing-images');
     const emptyHint = document.getElementById('no-images-hint');
     const fileInput = document.getElementById('new-images-input');
-    const preview = document.getElementById('new-images-preview');
+    const form = fileInput?.closest('form');
     let dragCard = null;
     let selectedFiles = [];
-    let previewUrls = [];
+    let previewUrls = new Map();
     let syncingFiles = false;
 
     function cards() {
         return Array.from(list.querySelectorAll('.image-card'));
+    }
+
+    function cardPrimaryValue(card) {
+        if (card.dataset.path) {
+            return card.dataset.path;
+        }
+
+        if (card.dataset.pendingIndex !== undefined) {
+            return `new:${card.dataset.pendingIndex}`;
+        }
+
+        return null;
     }
 
     function refreshEmptyState() {
@@ -232,12 +243,15 @@ function addSpec() {
 
     function refreshMainBadges() {
         const selected = manager.querySelector('.primary-radio:checked');
+
         cards().forEach((card) => {
-            const path = card.dataset.path;
-            const isMain = selected && selected.value === path;
+            const value = cardPrimaryValue(card);
+            const isMain = selected && selected.value === value;
             card.querySelector('.main-badge')?.classList.toggle('hidden', !isMain);
             const radio = card.querySelector('.primary-radio');
-            if (radio) radio.checked = !!isMain;
+            if (radio) {
+                radio.checked = !!isMain;
+            }
         });
 
         if (!selected && cards().length) {
@@ -254,11 +268,73 @@ function addSpec() {
         const index = siblings.indexOf(card);
         const target = siblings[index + direction];
         if (!target) return;
+
         if (direction < 0) {
             list.insertBefore(card, target);
         } else {
             list.insertBefore(target, card);
         }
+
+        refreshMainBadges();
+    }
+
+    function revokePreviewUrls() {
+        previewUrls.forEach((url) => URL.revokeObjectURL(url));
+        previewUrls.clear();
+    }
+
+    function syncSelectedFiles() {
+        if (!fileInput) return;
+
+        const dataTransfer = new DataTransfer();
+        selectedFiles.forEach((file) => dataTransfer.items.add(file));
+        syncingFiles = true;
+        fileInput.files = dataTransfer.files;
+        syncingFiles = false;
+    }
+
+    function removePendingCards() {
+        cards()
+            .filter((card) => card.dataset.pendingIndex !== undefined)
+            .forEach((card) => card.remove());
+    }
+
+    function rebuildPendingCards() {
+        removePendingCards();
+        revokePreviewUrls();
+
+        selectedFiles.forEach((file, index) => {
+            const url = URL.createObjectURL(file);
+            previewUrls.set(index, url);
+
+            const card = document.createElement('div');
+            card.className = 'image-card group relative w-24';
+            card.draggable = true;
+            card.dataset.pendingIndex = String(index);
+
+            card.innerHTML = `
+                <div class="relative h-24 w-24 overflow-hidden rounded-lg border border-orange-500/50 bg-slate-950">
+                    <img src="${url}" alt="${file.name.replace(/"/g, '&quot;')}" class="h-full w-full object-cover" width="96" height="96">
+                    <span class="main-badge absolute left-1 top-1 rounded bg-orange-500 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-white hidden">Main</span>
+                    <span class="absolute bottom-1 left-1 rounded bg-orange-500/80 px-1 py-0.5 text-[8px] font-semibold uppercase text-white">New</span>
+                    <button type="button" class="remove-image absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/75 text-xs text-red-300 hover:bg-red-500 hover:text-white" title="Remove" aria-label="Remove image">✕</button>
+                    <span class="absolute bottom-1 right-1 cursor-grab text-xs text-slate-300" title="Drag to reorder">⠿</span>
+                </div>
+                <div class="mt-1 flex items-center justify-center gap-0.5">
+                    <label class="cursor-pointer rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-orange-300">
+                        <input type="radio" name="primary_image" value="new:${index}" class="primary-radio sr-only">
+                        Main
+                    </label>
+                    <button type="button" class="move-left rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-slate-200" title="Move left">←</button>
+                    <button type="button" class="move-right rounded px-1 py-0.5 text-[10px] text-slate-400 hover:text-slate-200" title="Move right">→</button>
+                </div>
+                <p class="mt-0.5 truncate text-center text-[10px] text-slate-500">${file.name.replace(/</g, '&lt;')}</p>
+            `;
+
+            list.appendChild(card);
+        });
+
+        refreshEmptyState();
         refreshMainBadges();
     }
 
@@ -268,8 +344,19 @@ function addSpec() {
 
         if (event.target.closest('.remove-image')) {
             const wasChecked = card.querySelector('.primary-radio')?.checked;
-            card.remove();
-            if (wasChecked) refreshMainBadges();
+
+            if (card.dataset.pendingIndex !== undefined) {
+                selectedFiles.splice(parseInt(card.dataset.pendingIndex, 10), 1);
+                syncSelectedFiles();
+                rebuildPendingCards();
+            } else {
+                card.remove();
+            }
+
+            if (wasChecked) {
+                refreshMainBadges();
+            }
+
             refreshEmptyState();
             return;
         }
@@ -313,78 +400,19 @@ function addSpec() {
         list.insertBefore(dragCard, before ? over : over.nextSibling);
     });
 
-    function revokePreviewUrls() {
-        previewUrls.forEach((url) => URL.revokeObjectURL(url));
-        previewUrls = [];
-    }
-
-    function syncSelectedFiles() {
-        if (!fileInput) return;
-
-        const dataTransfer = new DataTransfer();
-        selectedFiles.forEach((file) => dataTransfer.items.add(file));
-        syncingFiles = true;
-        fileInput.files = dataTransfer.files;
-        syncingFiles = false;
-        renderNewPreviews();
-    }
-
-    function renderNewPreviews() {
-        if (!preview) return;
-
-        revokePreviewUrls();
-        preview.innerHTML = '';
-
-        selectedFiles.forEach((file, index) => {
-            const url = URL.createObjectURL(file);
-            previewUrls.push(url);
-
-            const item = document.createElement('div');
-            item.className = 'relative w-24';
-
-            const wrap = document.createElement('div');
-            wrap.className = 'relative h-24 w-24 overflow-hidden rounded-lg border border-slate-700 bg-slate-950';
-
-            const img = document.createElement('img');
-            img.src = url;
-            img.alt = file.name;
-            img.className = 'h-full w-full object-cover';
-            img.width = 96;
-            img.height = 96;
-
-            const removeBtn = document.createElement('button');
-            removeBtn.type = 'button';
-            removeBtn.className = 'absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded-full bg-black/75 text-xs text-red-300 hover:bg-red-500 hover:text-white';
-            removeBtn.title = 'Remove selected image';
-            removeBtn.setAttribute('aria-label', 'Remove selected image');
-            removeBtn.textContent = '✕';
-            removeBtn.addEventListener('click', () => {
-                selectedFiles.splice(index, 1);
-                syncSelectedFiles();
-            });
-
-            const name = document.createElement('p');
-            name.className = 'mt-1 truncate text-[10px] text-slate-500';
-            name.textContent = file.name;
-
-            wrap.appendChild(img);
-            wrap.appendChild(removeBtn);
-            item.appendChild(wrap);
-            item.appendChild(name);
-            preview.appendChild(item);
-        });
-    }
-
     fileInput?.addEventListener('change', () => {
         if (syncingFiles) return;
 
-        const incoming = Array.from(fileInput.files || []);
-        const isEcho = incoming.length === selectedFiles.length
-            && incoming.every((file, index) => file === selectedFiles[index]);
-
-        if (isEcho) return;
+        const incoming = Array.from(fileInput.files || []).filter((file) => file.size > 0);
+        if (!incoming.length) return;
 
         selectedFiles = [...selectedFiles, ...incoming];
+        fileInput.value = '';
+        syncSelectedFiles();
+        rebuildPendingCards();
+    });
+
+    form?.addEventListener('submit', () => {
         syncSelectedFiles();
     });
 

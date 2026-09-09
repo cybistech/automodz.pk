@@ -107,7 +107,12 @@ class UploadsDoctorCommand extends Command
             'storage/app/public/products',
             'storage/app/public/products/thumbs',
             'storage/app/public/categories',
+            'storage/framework/sessions',
+            'storage/framework/views',
+            'storage/framework/cache',
             'storage/framework/temp',
+            'storage/logs',
+            'bootstrap/cache',
         ];
 
         $issues = 0;

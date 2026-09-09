@@ -168,7 +168,7 @@ class ProductController extends Controller
         $uploaded = $this->handleImages($request, $productName);
         $images = array_values(array_unique([...$kept, ...$uploaded]));
 
-        $primary = $request->input('primary_image');
+        $primary = $this->resolvePrimaryImagePath($request->input('primary_image'), $uploaded);
 
         if (is_string($primary) && $primary !== '' && in_array($primary, $images, true)) {
             $images = array_values(array_unique([
@@ -180,11 +180,29 @@ class ProductController extends Controller
         return $images;
     }
 
+    /**
+     * Map primary_image=new:0 style tokens (pending uploads) to stored paths.
+     *
+     * @param  list<string>  $uploaded
+     */
+    private function resolvePrimaryImagePath(mixed $primary, array $uploaded): mixed
+    {
+        if (! is_string($primary) || ! str_starts_with($primary, 'new:')) {
+            return $primary;
+        }
+
+        $index = (int) substr($primary, 4);
+
+        return $uploaded[$index] ?? $primary;
+    }
+
     private function handleImages(Request $request, ?string $productName = null): array
     {
         $files = $request->file('images');
 
         if ($files === null) {
+            $this->guardAgainstMissingUploads($request);
+
             return [];
         }
 
@@ -209,6 +227,27 @@ class ProductController extends Controller
                 'images' => 'Image upload failed: '.$e->getMessage(),
             ]);
         }
+    }
+
+    /**
+     * Detect when the browser sent a multipart body but PHP dropped file fields
+     * (common when post_max_size or upload_max_filesize is exceeded).
+     */
+    private function guardAgainstMissingUploads(Request $request): void
+    {
+        $contentLength = (int) ($request->server('CONTENT_LENGTH') ?? 0);
+        $contentType = strtolower((string) ($request->server('CONTENT_TYPE') ?? ''));
+
+        if ($contentLength < 1024 || ! str_contains($contentType, 'multipart/form-data')) {
+            return;
+        }
+
+        throw ValidationException::withMessages([
+            'images' => 'The image upload did not reach the server. The file may exceed PHP upload limits '
+                .'(upload_max_filesize='.(ini_get('upload_max_filesize') ?: 'unknown')
+                .', post_max_size='.(ini_get('post_max_size') ?: 'unknown').'). '
+                .'Raise limits in .user.ini / MultiPHP INI Editor, then try again.',
+        ]);
     }
 
     private function deleteProductImages(array $images): void
