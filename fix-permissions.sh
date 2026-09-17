@@ -10,12 +10,21 @@ detect_web_user() {
         return
     fi
 
-    # Prefer the PHP-FPM / Apache worker user (often nobody or www-data).
+    # cPanel / home hosting: /home/<user>/public_html/...
+    if [[ "$APP_DIR" =~ ^/home/([^/]+)/ ]]; then
+        local cpanel_user="${BASH_REMATCH[1]}"
+        if id "$cpanel_user" >/dev/null 2>&1; then
+            echo "$cpanel_user"
+            return
+        fi
+    fi
+
+    # Prefer the PHP-FPM / Apache / LiteSpeed worker user.
     local detected=""
-    detected="$(ps -o user= -C php-fpm8.3,php-fpm8.2,php-fpm,apache2,httpd 2>/dev/null | awk 'NF && $1!="root"{print $1; exit}')" || true
+    detected="$(ps -o user= -C php-fpm8.3,php-fpm8.2,php-fpm,lsphp,apache2,httpd 2>/dev/null | awk 'NF && $1!="root"{print $1; exit}')" || true
 
     if [[ -z "$detected" ]]; then
-        detected="$(ps aux 2>/dev/null | awk '/php-fpm: pool|apache2|httpd/{print $1}' | awk '$1!="root" && $1!="USER"{print; exit}')" || true
+        detected="$(ps aux 2>/dev/null | awk '/php-fpm: pool|lsphp|apache2|httpd/{print $1}' | awk '$1!="root" && $1!="USER"{print; exit}')" || true
     fi
 
     if [[ -n "$detected" ]] && id "$detected" >/dev/null 2>&1; then
@@ -49,6 +58,7 @@ detect_web_group() {
 WEB_USER="$(detect_web_user)"
 WEB_GROUP="$(detect_web_group "$WEB_USER")"
 
+echo "==> App: ${APP_DIR}"
 echo "==> Fixing permissions for ${WEB_USER}:${WEB_GROUP}..."
 
 mkdir -p \
@@ -78,34 +88,35 @@ fi
 touch storage/logs/laravel.log
 touch "storage/logs/laravel-$(date +%F).log" 2>/dev/null || true
 
-if [[ "$(id -u)" -eq 0 ]]; then
-    chown -R "${WEB_USER}:${WEB_GROUP}" storage bootstrap/cache 2>/dev/null || true
-else
-    chown -R "${WEB_USER}:${WEB_GROUP}" storage bootstrap/cache 2>/dev/null || true
-fi
+# Own storage as the account/PHP user whenever possible.
+chown -R "${WEB_USER}:${WEB_GROUP}" storage bootstrap/cache 2>/dev/null || true
 
 find storage bootstrap/cache -type d -exec chmod 775 {} + 2>/dev/null || chmod -R 775 storage bootstrap/cache
 find storage bootstrap/cache -type f -exec chmod 664 {} + 2>/dev/null || true
 
-# Upload dirs must be writable by PHP-FPM (often nobody/www-data). Prefer 777 when
-# ownership cannot be changed (common on shared/cPanel and container mounts).
-for dir in \
-    storage/app/public \
-    storage/app/public/products \
-    storage/app/public/products/thumbs \
-    storage/app/public/categories \
-    storage/framework/temp \
-    storage/framework/cache \
-    storage/framework/sessions \
-    storage/framework/views \
-    storage/logs \
+# These must always be writable by PHP (sessions especially).
+WRITABLE_DIRS=(
+    storage/app/public
+    storage/app/public/products
+    storage/app/public/products/thumbs
+    storage/app/public/categories
+    storage/framework
+    storage/framework/temp
+    storage/framework/cache
+    storage/framework/cache/data
+    storage/framework/sessions
+    storage/framework/views
+    storage/logs
     bootstrap/cache
-do
+)
+
+for dir in "${WRITABLE_DIRS[@]}"; do
     mkdir -p "$dir"
+    chown "${WEB_USER}:${WEB_GROUP}" "$dir" 2>/dev/null || true
+    # 777 fallback for hosts where PHP user != deploy user.
     chmod 777 "$dir" 2>/dev/null || chmod 775 "$dir" 2>/dev/null || true
 done
 
-# Verify writability. Prefer a real write probe over runuser (often blocked in containers).
 check_writable() {
     local dir="$1"
     local probe="$dir/.perm-write-test-$$"
@@ -126,7 +137,17 @@ check_writable() {
 }
 
 FAILED=0
-for dir in storage/logs storage/framework/views storage/framework/cache bootstrap/cache storage/framework/temp storage/app/public/products storage/app/public/products/thumbs storage/app/public/categories; do
+for dir in \
+    storage/logs \
+    storage/framework/views \
+    storage/framework/cache \
+    storage/framework/sessions \
+    bootstrap/cache \
+    storage/framework/temp \
+    storage/app/public/products \
+    storage/app/public/products/thumbs \
+    storage/app/public/categories
+do
     if check_writable "$dir"; then
         echo "OK  $dir is writable"
     else
@@ -136,9 +157,14 @@ for dir in storage/logs storage/framework/views storage/framework/cache bootstra
 done
 
 if [[ "$FAILED" -ne 0 ]]; then
-    echo "Run as root: sudo WEB_USER=${WEB_USER} WEB_GROUP=${WEB_GROUP} ./fix-permissions.sh"
-    echo "Or manually: chmod -R 777 storage/app/public/products storage/app/public/products/thumbs"
+    echo
+    echo "Permission fix incomplete. On the server run:"
+    echo "  cd ${APP_DIR}"
+    echo "  chmod -R 777 storage bootstrap/cache"
+    echo "  chown -R ${WEB_USER}:${WEB_GROUP} storage bootstrap/cache"
     exit 1
 fi
 
-echo "==> Done. Upload dirs are writable (target PHP user: ${WEB_USER}:${WEB_GROUP})."
+echo "==> Done. storage is writable for ${WEB_USER}:${WEB_GROUP}."
+echo "    If sessions still fail, run on the live server:"
+echo "    chmod -R 777 storage/framework/sessions storage/framework/cache storage/logs bootstrap/cache"

@@ -136,15 +136,19 @@ class ImageOptimizer
         $extension = in_array($extension, ['jpg', 'jpeg', 'png', 'gif', 'webp'], true) ? $extension : 'jpg';
         $relative = trim($directory, '/').'/'.$basename.'.'.$extension;
 
-        Storage::disk('public')->put($relative, file_get_contents($file->getRealPath()));
+        $stored = $file->storeAs(trim($directory, '/'), $basename.'.'.$extension, 'public');
+
+        if ($stored === false || ! Storage::disk('public')->exists($stored)) {
+            throw new RuntimeException('Failed to save uploaded image. Check storage permissions (run ./fix-permissions.sh).');
+        }
 
         // Copy as thumb so listings still have a path to resolve.
-        Storage::disk('public')->put(
-            trim($directory, '/').'/thumbs/'.$basename.'.'.$extension,
-            Storage::disk('public')->get($relative)
-        );
+        $thumbRelative = trim($directory, '/').'/thumbs/'.$basename.'.'.$extension;
+        Storage::disk('public')->put($thumbRelative, Storage::disk('public')->get($stored));
+        @chmod(Storage::disk('public')->path($stored), 0644);
+        @chmod(Storage::disk('public')->path($thumbRelative), 0644);
 
-        return $relative;
+        return $stored;
     }
 
     /**
@@ -519,6 +523,10 @@ class ImageOptimizer
 
         if (function_exists('imagewebp') && @imagewebp($image, $webpFull, $quality)) {
             @chmod($webpFull, 0644);
+
+            if (! is_file($webpFull) || filesize($webpFull) === 0) {
+                throw new RuntimeException('WebP image was not written to disk. Check storage permissions.');
+            }
 
             return $webpRelative;
         }
