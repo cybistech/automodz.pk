@@ -201,12 +201,12 @@ class UploadsDoctorCommand extends Command
 
         if (is_file($htaccess)) {
             $contents = file_get_contents($htaccess) ?: '';
-            $hasUploadRewrite = str_contains($contents, 'storage/app/public');
+            $hasUploadRewrite = str_contains($contents, 'RewriteRule ^uploads/ index.php');
 
             if ($hasUploadRewrite) {
-                $this->line('  OK  .htaccess present with /uploads fallback rewrite');
+                $this->line('  OK  .htaccess routes /uploads through Laravel (avoids cPanel symlink 403)');
             } else {
-                $this->line('  WARN .htaccess present but missing /uploads rewrite — recopy from .htaccess.example');
+                $this->line('  WARN .htaccess present but missing /uploads -> index.php rule — recopy from .htaccess.example');
                 $issues++;
             }
         } else {

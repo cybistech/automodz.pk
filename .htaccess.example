@@ -27,15 +27,9 @@
     RewriteCond %{THE_REQUEST} \s/+storage(/|\s) [NC]
     RewriteRule ^storage(/|$) - [F,L]
 
-    # Prefer real /uploads symlink (uploads -> storage/app/public) when present.
-    # Fallback rewrite keeps older installs working without the symlink.
-    RewriteCond %{REQUEST_URI} ^/uploads/(.+)$ [NC]
-    RewriteCond %{DOCUMENT_ROOT}/uploads/%1 -f
-    RewriteRule ^uploads/(.+)$ - [L]
-
-    RewriteCond %{REQUEST_URI} ^/uploads/(.+)$ [NC]
-    RewriteCond %{DOCUMENT_ROOT}/storage/app/public/%1 -f
-    RewriteRule ^uploads/(.+)$ storage/app/public/$1 [L,END]
+    # Serve uploaded media through Laravel. cPanel/Apache often returns 403 when
+    # serving files through the uploads -> storage/app/public symlink directly.
+    RewriteRule ^uploads/ index.php [L]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .
