@@ -98,7 +98,7 @@ echo "==> Optimizing application..."
 php artisan optimize
 
 echo "==> Ensuring upload directory exists..."
-mkdir -p storage/app/public/products/thumbs storage/app/public/categories
+mkdir -p uploads/products/thumbs uploads/categories storage/app/public/products/thumbs
 php artisan uploads:link --force
 php artisan uploads:doctor || true
 php artisan uploads:thumbs || true

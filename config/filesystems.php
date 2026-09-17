@@ -40,8 +40,9 @@ return [
 
         'public' => [
             'driver' => 'local',
-            'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/uploads',
+            // Real directory at project root (not a symlink) — avoids cPanel 403 on /uploads.
+            'root' => base_path('uploads'),
+            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/media',
             'visibility' => 'public',
             'serve' => false,
             'throw' => false,
@@ -75,8 +76,8 @@ return [
     */
 
     'links' => [
-        // Project is served from the app root (not /public), so /uploads must resolve here.
-        base_path('uploads') => storage_path('app/public'),
+        // Legacy: storage:link used to create uploads -> storage/app/public.
+        // Use `php artisan uploads:link` instead (real uploads/ directory).
     ],
 
 ];

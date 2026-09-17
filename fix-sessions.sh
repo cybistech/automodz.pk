@@ -17,6 +17,8 @@ mkdir -p \
   storage/framework/views \
   storage/framework/temp \
   storage/logs \
+  uploads/products/thumbs \
+  uploads/categories \
   storage/app/public/products/thumbs \
   storage/app/public/categories \
   bootstrap/cache
@@ -29,13 +31,10 @@ chmod -R 777 \
   storage/framework/views \
   storage/framework/temp \
   storage/logs \
-  storage/app/public \
+  uploads \
   bootstrap/cache
 
-# Ensure /uploads public symlink exists for product images.
-if [[ ! -e uploads ]]; then
-  ln -s storage/app/public uploads
-fi
+php artisan uploads:link --force 2>/dev/null || true
 
 php artisan optimize:clear 2>/dev/null || true
 

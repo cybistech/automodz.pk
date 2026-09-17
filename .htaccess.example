@@ -27,9 +27,13 @@
     RewriteCond %{THE_REQUEST} \s/+storage(/|\s) [NC]
     RewriteRule ^storage(/|$) - [F,L]
 
-    # Serve uploaded media through Laravel. cPanel/Apache often returns 403 when
-    # serving files through the uploads -> storage/app/public symlink directly.
-    RewriteRule ^uploads/ index.php [L]
+    # Pretty media URLs -> media.php (never serve /uploads/ statically; cPanel returns 403).
+    RewriteRule ^media/(.+)$ media.php?p=$1 [L,QSA,NC]
+
+    # Legacy /uploads URLs -> media.php
+    RewriteRule ^uploads/(.+)$ media.php?p=$1 [L,QSA,NC]
+
+    RewriteRule ^uploads/?$ media.php [L,QSA,NC]
 
     # Handle Authorization Header
     RewriteCond %{HTTP:Authorization} .

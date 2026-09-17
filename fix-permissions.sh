@@ -80,14 +80,12 @@ mkdir -p \
     storage/app/private \
     bootstrap/cache
 
-# Public URL path /uploads must point at storage/app/public (symlink).
+# Public URL path /uploads uses a real directory (symlinks often 403 on cPanel).
+mkdir -p uploads/products/thumbs uploads/categories
 if [[ -L uploads ]]; then
-    echo "OK  uploads symlink exists -> $(readlink uploads)"
-elif [[ -e uploads ]]; then
-    echo "WARN uploads exists but is not a symlink; leave it alone"
-else
-    ln -s storage/app/public uploads
-    echo "OK  created uploads -> storage/app/public"
+    echo "WARN uploads is still a symlink — run: php artisan uploads:link --force"
+elif [[ -d uploads ]]; then
+    echo "OK  uploads directory exists"
 fi
 
 touch storage/logs/laravel.log
@@ -97,13 +95,17 @@ touch "storage/logs/laravel-$(date +%F).log" 2>/dev/null || true
 find storage/framework/sessions -type f -name '[A-Za-z0-9]*' -delete 2>/dev/null || true
 
 # Own storage as the account/PHP user whenever possible.
-chown -R "${WEB_USER}:${WEB_GROUP}" storage bootstrap/cache 2>/dev/null || true
+chown -R "${WEB_USER}:${WEB_GROUP}" storage uploads bootstrap/cache 2>/dev/null || true
 
 find storage bootstrap/cache -type d -exec chmod 775 {} + 2>/dev/null || chmod -R 775 storage bootstrap/cache
 find storage bootstrap/cache -type f -exec chmod 664 {} + 2>/dev/null || true
 
 # These must always be writable by PHP (sessions especially).
 WRITABLE_DIRS=(
+    uploads
+    uploads/products
+    uploads/products/thumbs
+    uploads/categories
     storage/app/public
     storage/app/public/products
     storage/app/public/products/thumbs
@@ -152,6 +154,9 @@ for dir in \
     storage/framework/cache \
     bootstrap/cache \
     storage/framework/temp \
+    uploads/products \
+    uploads/products/thumbs \
+    uploads/categories \
     storage/app/public/products \
     storage/app/public/products/thumbs \
     storage/app/public/categories

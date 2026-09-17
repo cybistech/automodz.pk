@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\UploadController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
@@ -19,25 +20,9 @@ use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
 use App\Http\Controllers\Shop\ProductReviewController;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Storage;
-
-Route::get('/uploads/{path}', function (string $path) {
-    $path = str_replace('\\', '/', $path);
-    $path = ltrim($path, '/');
-
-    abort_if($path === '' || str_contains($path, '..'), 404);
-    abort_unless(Storage::disk('public')->exists($path), 404);
-
-    $absolute = Storage::disk('public')->path($path);
-    $real = realpath($absolute);
-    $root = realpath(Storage::disk('public')->path(''));
-
-    abort_unless($real && $root && str_starts_with($real, $root.DIRECTORY_SEPARATOR), 404);
-
-    return response()->file($real, [
-        'Cache-Control' => 'public, max-age=31536000, immutable',
-    ]);
-})->where('path', '.*')->name('uploads.public');
+Route::get('/uploads/{path}', [UploadController::class, 'show'])
+    ->where('path', '.*')
+    ->name('uploads.public');
 
 Route::get('/feed.xml', [FeedController::class, 'products'])->name('feed.products');
 
