@@ -57,9 +57,14 @@ detect_web_group() {
 
 WEB_USER="$(detect_web_user)"
 WEB_GROUP="$(detect_web_group "$WEB_USER")"
+CURRENT_USER="$(whoami)"
 
 echo "==> App: ${APP_DIR}"
-echo "==> Fixing permissions for ${WEB_USER}:${WEB_GROUP}..."
+echo "==> Fixing permissions for ${WEB_USER}:${WEB_GROUP} (SSH user: ${CURRENT_USER})..."
+
+if [[ "$WEB_USER" != "$CURRENT_USER" ]]; then
+    echo "NOTE PHP runs as ${WEB_USER}, not ${CURRENT_USER}. Using 777 on storage so the web server can write."
+fi
 
 mkdir -p \
     storage/app/public/products \
@@ -87,6 +92,9 @@ fi
 
 touch storage/logs/laravel.log
 touch "storage/logs/laravel-$(date +%F).log" 2>/dev/null || true
+
+# Stale session files may be owned by a different user and block PHP from overwriting them.
+find storage/framework/sessions -type f -name '[A-Za-z0-9]*' -delete 2>/dev/null || true
 
 # Own storage as the account/PHP user whenever possible.
 chown -R "${WEB_USER}:${WEB_GROUP}" storage bootstrap/cache 2>/dev/null || true
@@ -139,9 +147,9 @@ check_writable() {
 FAILED=0
 for dir in \
     storage/logs \
+    storage/framework/sessions \
     storage/framework/views \
     storage/framework/cache \
-    storage/framework/sessions \
     bootstrap/cache \
     storage/framework/temp \
     storage/app/public/products \
@@ -162,6 +170,8 @@ if [[ "$FAILED" -ne 0 ]]; then
     echo "  cd ${APP_DIR}"
     echo "  chmod -R 777 storage bootstrap/cache"
     echo "  chown -R ${WEB_USER}:${WEB_GROUP} storage bootstrap/cache"
+    echo "Or as root: sudo WEB_USER=${WEB_USER} WEB_GROUP=${WEB_GROUP} ./fix-permissions.sh"
+    echo "cPanel: cd $(pwd) && WEB_USER=$(whoami) ./fix-permissions.sh"
     exit 1
 fi
 
