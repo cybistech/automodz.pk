@@ -8,6 +8,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Services\ProductImageService;
 use App\Support\ShopCache;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -40,18 +41,19 @@ class ProductController extends Controller
         return view('admin.products.create', compact('categories'));
     }
 
-    public function store(ProductRequest $request)
+    public function store(ProductRequest $request): RedirectResponse
     {
         $data = $request->productAttributes();
         $data['slug'] = Str::slug($data['name']);
-        $data['images'] = $this->productImages->sync($request, null, $data['name']);
+        $imageResult = $this->productImages->syncWithDebug($request, null, $data['name']);
+        $data['images'] = $imageResult['images'];
         $data['video_path'] = $this->handleVideo($request);
         $data['specifications'] = $this->parseSpecifications($request);
 
         Product::create($data);
         ShopCache::flush();
 
-        return redirect()->route('admin.products.index')->with('success', 'Product created successfully.');
+        return $this->redirectAfterImageSync('Product created successfully.', $imageResult['debug']);
     }
 
     public function edit(Product $product)
@@ -61,12 +63,13 @@ class ProductController extends Controller
         return view('admin.products.edit', compact('product', 'categories'));
     }
 
-    public function update(ProductRequest $request, Product $product)
+    public function update(ProductRequest $request, Product $product): RedirectResponse
     {
         $data = $request->productAttributes();
         $data['slug'] = Str::slug($data['name']);
         $data['specifications'] = $this->parseSpecifications($request);
-        $data['images'] = $this->productImages->sync($request, $product, $data['name']);
+        $imageResult = $this->productImages->syncWithDebug($request, $product, $data['name']);
+        $data['images'] = $imageResult['images'];
 
         if ($request->hasFile('video_file')) {
             if ($product->video_path) {
@@ -78,7 +81,7 @@ class ProductController extends Controller
         $product->update($data);
         ShopCache::flush();
 
-        return redirect()->route('admin.products.index')->with('success', 'Product updated successfully.');
+        return $this->redirectAfterImageSync('Product updated successfully.', $imageResult['debug']);
     }
 
     public function destroy(Product $product)
@@ -102,6 +105,24 @@ class ProductController extends Controller
         }
 
         return $request->file('video_file')->store('products/videos', 'public');
+    }
+
+    /**
+     * @param  array<string, mixed>  $debug
+     */
+    private function redirectAfterImageSync(string $message, array $debug): RedirectResponse
+    {
+        $redirect = redirect()->route('admin.products.index')->with('success', $message);
+
+        if ($warnings = ($debug['warnings'] ?? [])) {
+            $redirect->with('warning', implode(' ', $warnings));
+        }
+
+        if (config('app.debug_uploads')) {
+            $redirect->with('upload_debug', $debug);
+        }
+
+        return $redirect;
     }
 
     private function parseSpecifications(Request $request): ?array

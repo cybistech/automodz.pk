@@ -384,6 +384,19 @@
             return;
         }
 
+        let attempted = form.querySelector('input[name="images_attempted"]');
+        if (pendingFiles.length) {
+            if (!attempted) {
+                attempted = document.createElement('input');
+                attempted.type = 'hidden';
+                attempted.name = 'images_attempted';
+                form.appendChild(attempted);
+            }
+            attempted.value = String(pendingFiles.length);
+        } else if (attempted) {
+            attempted.remove();
+        }
+
         showClientError([]);
     });
 

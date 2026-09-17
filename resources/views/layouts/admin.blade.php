@@ -59,6 +59,35 @@
             @if(session('success'))
                 <div class="mx-6 mt-4 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-3 text-green-300">{{ session('success') }}</div>
             @endif
+            @if(session('warning'))
+                <div class="mx-6 mt-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-amber-200">{{ session('warning') }}</div>
+            @endif
+            @if(session('upload_debug'))
+                @php($uploadDebug = session('upload_debug'))
+                <div class="mx-6 mt-4 rounded-lg border border-blue-500/30 bg-blue-500/10 px-4 py-3 text-blue-100">
+                    <p class="font-semibold text-blue-200">Image upload debug</p>
+                    <dl class="mt-2 grid gap-1 text-xs sm:grid-cols-2">
+                        <div><dt class="text-blue-300/80">Content-Length</dt><dd>{{ number_format($uploadDebug['content_length'] ?? 0) }} bytes</dd></div>
+                        <div><dt class="text-blue-300/80">post_max_size</dt><dd>{{ number_format($uploadDebug['post_max_bytes'] ?? 0) }} bytes</dd></div>
+                        <div><dt class="text-blue-300/80">upload_max_filesize</dt><dd>{{ number_format($uploadDebug['upload_max_bytes'] ?? 0) }} bytes</dd></div>
+                        <div><dt class="text-blue-300/80">Browser reported new files</dt><dd>{{ $uploadDebug['images_attempted'] ?? 0 }}</dd></div>
+                        <div><dt class="text-blue-300/80">PHP received files</dt><dd>{{ $uploadDebug['collected_file_count'] ?? 0 }}</dd></div>
+                        <div><dt class="text-blue-300/80">Uploaded / kept / removed</dt><dd>{{ ($uploadDebug['uploaded_count'] ?? 0).' / '.($uploadDebug['kept_count'] ?? 0).' / '.($uploadDebug['removed_count'] ?? 0) }}</dd></div>
+                        <div class="sm:col-span-2"><dt class="text-blue-300/80">products dir writable</dt><dd>{{ ($uploadDebug['disk_checks']['products_dir_writable'] ?? false) ? 'yes' : 'no' }}</dd></div>
+                    </dl>
+                    @if(! empty($uploadDebug['warnings']))
+                        <ul class="mt-2 list-disc space-y-1 pl-5 text-xs text-amber-200">
+                            @foreach($uploadDebug['warnings'] as $warning)
+                                <li>{{ $warning }}</li>
+                            @endforeach
+                        </ul>
+                    @endif
+                    <details class="mt-3">
+                        <summary class="cursor-pointer text-xs text-blue-300">Full debug payload</summary>
+                        <pre class="mt-2 max-h-64 overflow-auto rounded bg-slate-950/80 p-3 text-[11px] leading-relaxed text-slate-300">{{ json_encode($uploadDebug, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) }}</pre>
+                    </details>
+                </div>
+            @endif
             @if($errors->any())
                 <div class="mx-6 mt-4 rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-3 text-red-300">
                     <ul class="list-disc space-y-1 pl-5 text-sm">

@@ -43,6 +43,18 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Product Image Upload Debug
+    |--------------------------------------------------------------------------
+    |
+    | When enabled, product create/update logs detailed upload diagnostics and
+    | shows a debug panel in the admin area after saving a product.
+    |
+    */
+
+    'debug_uploads' => (bool) env('APP_DEBUG_UPLOADS', false),
+
+    /*
+    |--------------------------------------------------------------------------
     | Application URL
     |--------------------------------------------------------------------------
     |
