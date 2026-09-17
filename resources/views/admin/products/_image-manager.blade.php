@@ -72,7 +72,7 @@
             <p class="text-sm text-slate-300">
                 <span class="font-medium text-orange-400">Click to browse</span> or drag images here
             </p>
-            <p class="mt-1 text-xs text-slate-500">Up to 20 images, {{ $maxUploadMb }}MB each</p>
+            <p class="mt-1 text-xs text-slate-500">Up to 20 images, {{ $maxUploadMb }}MB each (total request limit: {{ \App\Support\UploadLimits::humanPostMax() }})</p>
         </div>
 
         {{-- New upload previews --}}

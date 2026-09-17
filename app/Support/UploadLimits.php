@@ -36,18 +36,24 @@ class UploadLimits
     }
 
     /**
-     * Effective per-file upload limit in kilobytes (min of app config and PHP ini).
+     * Effective per-file upload limit in kilobytes (min of app config, upload_max, and post_max).
      */
     public static function effectiveMaxUploadKb(): int
     {
-        $appMaxKb = (int) config('media.max_upload_kb', 8192);
+        $appMaxKb = (int) config('media.max_upload_kb', 15360);
         $serverMaxKb = (int) floor(self::uploadMaxBytes() / 1024);
+        $postMaxKb = (int) floor(self::postMaxBytes() / 1024);
 
-        if ($serverMaxKb <= 0) {
-            return $appMaxKb;
-        }
+        $caps = array_filter([$appMaxKb, $serverMaxKb, $postMaxKb], fn (int $v) => $v > 0);
 
-        return min($appMaxKb, $serverMaxKb);
+        return min($caps ?: [$appMaxKb]);
+    }
+
+    public static function effectivePostMaxKb(): int
+    {
+        $postMaxKb = (int) floor(self::postMaxBytes() / 1024);
+
+        return $postMaxKb > 0 ? $postMaxKb : 16384;
     }
 
     public static function effectiveMaxUploadMb(): float

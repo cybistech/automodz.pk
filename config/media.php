@@ -2,8 +2,8 @@
 
 return [
 
-    // Per-file upload limit in KB (validated in admin; capped by PHP upload_max_filesize).
-    'max_upload_kb' => (int) env('MEDIA_MAX_UPLOAD_KB', 8192),
+    // Per-file upload limit in KB (validated in admin; auto-capped by PHP ini at runtime).
+    'max_upload_kb' => (int) env('MEDIA_MAX_UPLOAD_KB', 15360),
 
     'max_width' => (int) env('MEDIA_MAX_WIDTH', 1200),
 
