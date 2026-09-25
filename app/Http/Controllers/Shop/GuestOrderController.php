@@ -43,4 +43,20 @@ class GuestOrderController extends Controller
             'token' => $order->guest_token,
         ]);
     }
+
+    public function tracking(Order $order)
+    {
+        $token = (string) request('token', '');
+
+        if ($token === '' || ! hash_equals($order->guest_token ?? '', $token)) {
+            abort(403, 'Invalid or expired tracking link.');
+        }
+
+        $order->load('items', 'payment');
+
+        return view('shop.orders.show', [
+            'order' => $order,
+            'isGuestConfirmation' => true,
+        ]);
+    }
 }

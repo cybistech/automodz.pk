@@ -8,7 +8,7 @@ return [
         'name' => env('SHIPPING_SENDER_NAME', 'AutoModz.pk'),
         'address_line_1' => env('SHIPPING_SENDER_ADDRESS_1', '123-A, Main Boulevard, Ichra'),
         'address_line_2' => env('SHIPPING_SENDER_ADDRESS_2', 'Lahore, Punjab, Pakistan'),
-        'phone' => env('SHIPPING_SENDER_PHONE', env('SITE_WHATSAPP_DISPLAY', '+92 312 4094997')),
+        'phone' => env('SHIPPING_SENDER_PHONE', env('SITE_WHATSAPP_DISPLAY', '+92 300 1234567')),
         'email' => env('SHIPPING_SENDER_EMAIL', env('SITE_EMAIL', 'info@automodz.pk')),
     ],
 

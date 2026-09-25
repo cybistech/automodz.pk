@@ -51,6 +51,7 @@ Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.s
 
 Route::get('/order/track', [GuestOrderController::class, 'trackForm'])->name('orders.track');
 Route::post('/order/track', [GuestOrderController::class, 'track'])->name('orders.track.submit');
+Route::get('/order/{order}/tracking', [GuestOrderController::class, 'tracking'])->name('orders.tracking');
 
 Route::get('/order/confirmation/{order}', [OrderController::class, 'confirmation'])->name('orders.confirmation');
 Route::get('/payment/stripe/success/{order}', [StripeController::class, 'success'])->name('payment.stripe.success');

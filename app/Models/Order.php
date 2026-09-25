@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -156,10 +157,23 @@ class Order extends Model
 
     public function shippingLabelQrUrl(): string
     {
-        return route('orders.confirmation', [
+        $this->ensureGuestTrackingToken();
+
+        return route('orders.tracking', [
             'order' => $this,
             'token' => $this->guest_token,
         ]);
+    }
+
+    public function ensureGuestTrackingToken(): void
+    {
+        if (filled($this->guest_token)) {
+            return;
+        }
+
+        $this->forceFill([
+            'guest_token' => Str::random(48),
+        ])->save();
     }
 
     public function formattedReceiverAddress(): string
