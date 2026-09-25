@@ -6,7 +6,7 @@
     <title>Shipping Label — {{ $order->order_number }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Rajdhani:wght@700&family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -88,16 +88,41 @@
 
         .sl-logo-block {
             border-right: 1px solid var(--sl-line);
+            padding: 5px 8px 4px 10px;
+            display: flex;
+            align-items: center;
             overflow: hidden;
-            position: relative;
         }
 
-        .sl-logo-block img {
+        .sl-site-logo {
             width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: left top;
+            min-width: 0;
+        }
+
+        .sl-site-logo-mark {
+            width: 100%;
+            max-width: 228px;
+            height: auto;
             display: block;
+        }
+
+        .sl-site-logo-categories {
+            margin-top: 1px;
+            font-size: 6px;
+            font-weight: 700;
+            letter-spacing: 0.45px;
+            text-transform: uppercase;
+            color: var(--sl-black);
+            line-height: 1.2;
+        }
+
+        .sl-site-logo-tagline {
+            margin-top: 1px;
+            font-family: var(--sl-script);
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--sl-black);
         }
 
         .sl-order-block {
@@ -241,15 +266,15 @@
         .sl-contact-row {
             display: flex;
             align-items: center;
-            gap: 7px;
-            margin-top: 7px;
-            font-size: 11px;
+            gap: 5px;
+            margin-top: 4px;
+            font-size: 9px;
             font-weight: 500;
         }
 
         .sl-contact-row svg {
-            width: 12px;
-            height: 12px;
+            width: 10px;
+            height: 10px;
             flex-shrink: 0;
             stroke: var(--sl-black);
         }
@@ -421,7 +446,7 @@
     <article class="shipping-label" aria-label="Shipping label for order {{ $order->order_number }}">
         <header class="sl-header">
             <div class="sl-logo-block">
-                <img src="{{ asset('images/shipping-label-header-left.png') }}" width="350" height="129" alt="AutoModz.pk">
+                <x-shipping-label-logo />
             </div>
 
             <div class="sl-order-block">
