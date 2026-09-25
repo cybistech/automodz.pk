@@ -114,6 +114,68 @@ class Order extends Model
         };
     }
 
+    public function trackingNumber(): string
+    {
+        return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $this->order_number));
+    }
+
+    public function parcelWeightKg(): float
+    {
+        if (! $this->relationLoaded('items')) {
+            $this->load('items.product');
+        }
+
+        $weight = $this->items->sum(function (OrderItem $item): float {
+            $unitWeight = (float) ($item->product?->weight ?? 0);
+
+            return $unitWeight * $item->quantity;
+        });
+
+        return round($weight, 2);
+    }
+
+    public function codCollectAmount(): float
+    {
+        if ($this->payment_method === 'cod' && $this->payment_status !== 'paid') {
+            return (float) $this->total;
+        }
+
+        return 0.0;
+    }
+
+    public function paymentModeLabel(): string
+    {
+        return config('payments.methods.'.$this->payment_method)
+            ?? ucfirst(str_replace('_', ' ', (string) $this->payment_method));
+    }
+
+    public function shippingLabelOrderDate(): string
+    {
+        return $this->created_at?->format('d-m-Y') ?? now()->format('d-m-Y');
+    }
+
+    public function shippingLabelQrUrl(): string
+    {
+        return route('orders.confirmation', [
+            'order' => $this,
+            'token' => $this->guest_token,
+        ]);
+    }
+
+    public function formattedReceiverAddress(): string
+    {
+        $province = config('shipping.receiver_province', 'Punjab');
+        $country = config('shipping.receiver_country', 'Pakistan');
+
+        return trim(sprintf(
+            '%s / %s, %s, %s',
+            $this->shipping_address,
+            $this->shipping_city,
+            $province,
+            $country,
+        ));
+    }
+
     /**
      * Timeline steps for customer-facing order tracking.
      *

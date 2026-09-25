@@ -35,6 +35,16 @@ class OrderController extends Controller
         return view('admin.orders.show', compact('order'));
     }
 
+    public function shippingLabel(Order $order)
+    {
+        $order->load('items.product');
+
+        return view('admin.orders.shipping-label', [
+            'order' => $order,
+            'sender' => config('shipping.sender'),
+        ]);
+    }
+
     public function update(Request $request, Order $order)
     {
         $data = $request->validate([

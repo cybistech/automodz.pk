@@ -37,6 +37,20 @@
             <p class="text-sm text-slate-400">{{ $order->shipping_city }}</p>
         </div>
 
+        <div class="card p-6">
+            <h3 class="font-semibold">Shipping</h3>
+            <p class="mt-2 text-sm text-slate-400">Print a courier-ready shipping label with barcodes and delivery details.</p>
+            <a
+                href="{{ route('admin.orders.shipping-label', $order) }}"
+                target="_blank"
+                rel="noopener"
+                class="btn-primary mt-4 flex w-full items-center justify-center gap-2"
+            >
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path stroke-linecap="round" stroke-linejoin="round" d="M6 14h12v8H6z"/></svg>
+                Print shipping label
+            </a>
+        </div>
+
         <form action="{{ route('admin.orders.update', $order) }}" method="POST" class="card p-6">
             @csrf @method('PATCH')
             <h3 class="font-semibold">Update Status</h3>
