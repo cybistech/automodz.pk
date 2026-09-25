@@ -18,10 +18,11 @@
             --sl-icon-bg: #efefef;
             --sl-font: 'Roboto', Arial, Helvetica, sans-serif;
             --sl-script: 'Dancing Script', 'Segoe Script', cursive;
-            --label-w: 894px;
-            --label-h: 592px;
-            --header-h: 132px;
-            --address-h: 158px;
+            --sl-scale: 0.72;
+            --label-w: 644px;
+            --label-h: 426px;
+            --header-h: 96px;
+            --address-h: 112px;
         }
 
         html, body {
@@ -69,8 +70,8 @@
             width: var(--label-w);
             height: var(--label-h);
             background: #fff;
-            border: 2px solid var(--sl-line);
-            border-radius: 8px;
+            border: 1.5px solid var(--sl-line);
+            border-radius: 6px;
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -80,7 +81,7 @@
         .sl-header {
             height: var(--header-h);
             display: grid;
-            grid-template-columns: 350px 412px 132px;
+            grid-template-columns: 252px 296px 96px;
             border-bottom: 1px solid var(--sl-line);
             flex-shrink: 0;
         }
@@ -100,7 +101,7 @@
         }
 
         .sl-order-block {
-            padding: 10px 14px 8px;
+            padding: 6px 8px 5px;
             border-right: 1px solid var(--sl-line);
             display: flex;
             align-items: center;
@@ -112,20 +113,20 @@
             max-width: 392px;
             border: 1px solid var(--sl-line);
             border-radius: 4px;
-            padding: 10px 12px 8px;
+            padding: 6px 8px 5px;
         }
 
         .sl-order-row {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 8px;
+            gap: 6px;
+            margin-bottom: 4px;
         }
 
         .sl-order-row .lbl,
         .sl-tracking-top .lbl {
-            font-size: 12px;
+            font-size: 9.5px;
             font-weight: 700;
             color: var(--sl-black);
             white-space: nowrap;
@@ -134,9 +135,9 @@
         .sl-order-pill {
             background: var(--sl-black);
             color: #fff;
-            font-size: 11px;
+            font-size: 8.5px;
             font-weight: 700;
-            padding: 5px 11px;
+            padding: 3px 8px;
             border-radius: 999px;
             letter-spacing: 0.2px;
             white-space: nowrap;
@@ -144,18 +145,18 @@
 
         .sl-tracking-top .lbl {
             display: block;
-            margin-bottom: 3px;
+            margin-bottom: 2px;
         }
 
         .sl-barcode-small-wrap svg {
             width: 100%;
-            height: 34px;
+            height: 24px;
             display: block;
         }
 
         .sl-tracking-code-small {
             display: block;
-            font-size: 9px;
+            font-size: 7px;
             font-weight: 500;
             letter-spacing: 0.4px;
             margin-top: 2px;
@@ -163,30 +164,30 @@
         }
 
         .sl-qr-block {
-            padding: 10px 10px 6px;
+            padding: 5px 6px 4px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 5px;
+            gap: 3px;
         }
 
         .sl-qr-box {
             border: 1px solid #888;
-            border-radius: 4px;
-            padding: 5px;
+            border-radius: 3px;
+            padding: 3px;
             background: #fff;
         }
 
         .sl-qr-box canvas,
         .sl-qr-box img {
             display: block !important;
-            width: 78px !important;
-            height: 78px !important;
+            width: 56px !important;
+            height: 56px !important;
         }
 
         .sl-qr-caption {
-            font-size: 6px;
+            font-size: 5px;
             font-weight: 700;
             letter-spacing: 0.35px;
             text-transform: uppercase;
@@ -206,7 +207,7 @@
         }
 
         .sl-address-col {
-            padding: 12px 16px 10px;
+            padding: 7px 10px 6px;
         }
 
         .sl-address-col:first-child {
@@ -217,23 +218,23 @@
             display: inline-block;
             background: var(--sl-black);
             color: #fff;
-            font-size: 9.5px;
+            font-size: 8px;
             font-weight: 700;
-            padding: 4px 9px;
-            border-radius: 4px;
+            padding: 2px 7px;
+            border-radius: 3px;
             letter-spacing: 0.2px;
-            margin-bottom: 9px;
-        }
-
-        .sl-address-name {
-            font-size: 13px;
-            font-weight: 700;
             margin-bottom: 5px;
         }
 
+        .sl-address-name {
+            font-size: 10.5px;
+            font-weight: 700;
+            margin-bottom: 3px;
+        }
+
         .sl-address-lines {
-            font-size: 11px;
-            line-height: 1.45;
+            font-size: 9px;
+            line-height: 1.3;
             font-weight: 400;
         }
 
@@ -269,10 +270,10 @@
 
         .sl-detail-row {
             display: grid;
-            grid-template-columns: 44px 1fr auto;
+            grid-template-columns: 32px 1fr auto;
             align-items: center;
-            gap: 8px;
-            padding: 0 14px 0 12px;
+            gap: 6px;
+            padding: 0 8px 0 8px;
             border-bottom: 1px solid #dcdcdc;
         }
 
@@ -281,31 +282,31 @@
         }
 
         .sl-icon-box {
-            width: 40px;
-            height: 34px;
+            width: 30px;
+            height: 26px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
         .sl-icon-box img {
-            width: 40px;
-            height: 34px;
+            width: 30px;
+            height: 26px;
             object-fit: contain;
             display: block;
         }
 
         .sl-detail-label {
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 500;
             color: #222;
         }
 
         .sl-detail-value {
-            font-size: 11.5px;
+            font-size: 9px;
             font-weight: 900;
             text-align: right;
-            max-width: 170px;
+            max-width: 130px;
             line-height: 1.2;
         }
 
@@ -321,50 +322,50 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px 18px 6px;
+            padding: 6px 10px 4px;
             border-bottom: 1px solid var(--sl-line);
         }
 
         .sl-barcode-large-area svg {
             width: 100%;
-            max-width: 400px;
-            height: 78px;
+            max-width: 280px;
+            height: 52px;
         }
 
         .sl-tracking-code-large {
-            font-size: 21px;
+            font-size: 15px;
             font-weight: 900;
-            letter-spacing: 0.8px;
-            margin-top: 4px;
+            letter-spacing: 0.5px;
+            margin-top: 2px;
         }
 
         .sl-footer {
-            height: 58px;
+            height: 42px;
             display: grid;
             grid-template-columns: 1fr 1px 1fr;
             align-items: center;
-            padding: 0 14px;
-            gap: 10px;
+            padding: 0 8px;
+            gap: 6px;
             flex-shrink: 0;
         }
 
         .sl-footer-thanks {
             font-family: var(--sl-script);
-            font-size: 15px;
-            line-height: 1.1;
+            font-size: 11px;
+            line-height: 1.05;
             color: var(--sl-black);
-            margin-bottom: 1px;
+            margin-bottom: 0;
         }
 
         .sl-footer-brand-img {
-            height: 22px;
+            height: 16px;
             width: auto;
             display: block;
         }
 
         .sl-footer-divider {
             width: 1px;
-            height: 34px;
+            height: 26px;
             background: #bbb;
         }
 
@@ -375,13 +376,13 @@
         }
 
         .sl-footer-tagline img {
-            height: 34px;
+            height: 26px;
             width: auto;
             display: block;
         }
 
         @media print {
-            @page { size: 894px 592px; margin: 0; }
+            @page { size: 644px 426px; margin: 0; }
 
             html, body { background: #fff; }
 
@@ -392,7 +393,7 @@
             .shipping-label {
                 width: var(--label-w);
                 height: var(--label-h);
-                border-radius: 8px;
+                border-radius: 6px;
                 page-break-inside: avoid;
             }
         }
@@ -539,8 +540,8 @@
 
     JsBarcode('#barcode-top', tracking, {
         format: 'CODE128',
-        width: 1.25,
-        height: 34,
+        width: 1.05,
+        height: 24,
         displayValue: false,
         margin: 0,
         lineColor: '#0a0a0a',
@@ -548,8 +549,8 @@
 
     JsBarcode('#barcode-bottom', tracking, {
         format: 'CODE128',
-        width: 1.85,
-        height: 78,
+        width: 1.45,
+        height: 52,
         displayValue: false,
         margin: 0,
         lineColor: '#0a0a0a',
@@ -557,8 +558,8 @@
 
     new QRCode(document.getElementById('qrcode'), {
         text: qrUrl,
-        width: 78,
-        height: 78,
+        width: 56,
+        height: 56,
         colorDark: '#0a0a0a',
         colorLight: '#ffffff',
         correctLevel: QRCode.CorrectLevel.M,
