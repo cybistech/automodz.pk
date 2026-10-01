@@ -6,6 +6,7 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Admin\SsoProviderController as AdminSsoProviderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ShippingCityController as AdminShippingCityController;
 use App\Http\Controllers\Payment\JazzCashController;
@@ -82,6 +83,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('reviews.update');
     Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('sso-providers', [AdminSsoProviderController::class, 'edit'])->name('sso-providers.edit');
+    Route::patch('sso-providers', [AdminSsoProviderController::class, 'update'])->name('sso-providers.update');
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::get('orders/{order}/shipping-label', [AdminOrderController::class, 'shippingLabel'])->name('orders.shipping-label');

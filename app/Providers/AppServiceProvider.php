@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Services\CartService;
+use App\Services\SsoProviderService;
 use App\Support\RedisGuard;
 use App\Support\ShopCache;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 use Throwable;
@@ -23,6 +25,22 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        if (class_exists(\SocialiteProviders\Manager\SocialiteWasCalled::class)) {
+            Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+                if (class_exists(\SocialiteProviders\Instagram\Provider::class)) {
+                    $event->extendSocialite('instagram', \SocialiteProviders\Instagram\Provider::class);
+                }
+            });
+        }
+
+        View::composer(['auth.login', 'auth.register', 'components.social-login-buttons'], function ($view) {
+            try {
+                $view->with('ssoProviders', app(SsoProviderService::class)->enabledForLogin());
+            } catch (Throwable) {
+                $view->with('ssoProviders', collect());
+            }
+        });
+
         View::composer('layouts.shop', function ($view) {
             try {
                 $view->with('cartCount', app(CartService::class)->count());

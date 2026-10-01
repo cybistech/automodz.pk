@@ -9,6 +9,8 @@
         "php": "^8.3",
         "laravel/framework": "^13.17",
         "laravel/socialite": "^5.30",
+        "socialiteproviders/instagram": "^4.1",
+        "socialiteproviders/manager": "^4.8",
         "laravel/tinker": "^3.0",
         "predis/predis": "^3.6",
         "stripe/stripe-php": "^21.3"
