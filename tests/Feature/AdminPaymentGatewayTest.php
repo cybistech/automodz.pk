@@ -2,7 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Models\Category;
 use App\Models\PaymentGateway;
+use App\Models\Product;
+use App\Models\ShippingCity;
 use App\Models\User;
 use App\Services\PaymentGatewayService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -59,20 +62,39 @@ class AdminPaymentGatewayTest extends TestCase
     {
         PaymentGateway::where('key', 'cod')->update(['is_enabled' => true]);
 
-        $product = $this->seedProductAndCity();
+        $product = $this->createProduct();
+        ShippingCity::create([
+            'name' => 'Karachi',
+            'distance_km' => 0,
+            'base_fee' => 250,
+            'rate_per_km' => 0,
+            'is_active' => true,
+        ]);
 
-        $this->post(route('cart.add', $product), ['quantity' => 1])
-            ->assertRedirect();
+        $this->post(route('cart.add', $product), ['quantity' => 1]);
 
         $this->get(route('checkout.index'))
             ->assertOk()
             ->assertSee('Cash on Delivery', false);
     }
 
-    private function seedProductAndCity()
+    private function createProduct(): Product
     {
-        $city = \App\Models\ShippingCity::factory()->create();
-        $category = \App\Models\Category::factory()->create(['is_active' => true]);
-        $product = \App\Models\Factory::product(); // wrong
+        $category = Category::create([
+            'name' => 'Test Cat',
+            'slug' => 'test-cat',
+            'is_active' => true,
+        ]);
+
+        return Product::create([
+            'category_id' => $category->id,
+            'name' => 'Test Product',
+            'slug' => 'test-product',
+            'sku' => 'TEST-001',
+            'price' => 1000,
+            'stock' => 10,
+            'condition' => 'new',
+            'is_active' => true,
+        ]);
     }
 }

@@ -7,6 +7,8 @@ use App\Http\Controllers\Admin\CategoryController as AdminCategoryController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\SsoProviderController as AdminSsoProviderController;
+use App\Http\Controllers\Admin\WhatsAppSettingController as AdminWhatsAppSettingController;
+use App\Http\Controllers\Webhooks\WhatsAppWebhookController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ShippingCityController as AdminShippingCityController;
 use App\Http\Controllers\Payment\JazzCashController;
@@ -56,6 +58,11 @@ Route::get('/order/track', [GuestOrderController::class, 'trackForm'])->name('or
 Route::post('/order/track', [GuestOrderController::class, 'track'])->name('orders.track.submit');
 
 Route::get('/order/confirmation/{order}', [OrderController::class, 'confirmation'])->name('orders.confirmation');
+
+Route::get('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'verify'])
+    ->name('webhooks.whatsapp.verify');
+Route::post('/webhooks/whatsapp', [WhatsAppWebhookController::class, 'handle'])
+    ->name('webhooks.whatsapp.handle');
 Route::get('/payment/stripe/success/{order}', [StripeController::class, 'success'])->name('payment.stripe.success');
 Route::get('/payment/stripe/cancel/{order}', [StripeController::class, 'cancel'])->name('payment.stripe.cancel');
 Route::post('/payment/jazzcash/return', [JazzCashController::class, 'return'])->name('payment.jazzcash.return');
@@ -91,6 +98,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::patch('payment-gateways', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
     Route::get('sso-providers', [AdminSsoProviderController::class, 'edit'])->name('sso-providers.edit');
     Route::patch('sso-providers', [AdminSsoProviderController::class, 'update'])->name('sso-providers.update');
+    Route::get('whatsapp', [AdminWhatsAppSettingController::class, 'edit'])->name('whatsapp.edit');
+    Route::patch('whatsapp', [AdminWhatsAppSettingController::class, 'update'])->name('whatsapp.update');
+    Route::post('whatsapp/regenerate-verify-token', [AdminWhatsAppSettingController::class, 'regenerateVerifyToken'])->name('whatsapp.regenerate-verify-token');
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
     Route::get('orders/{order}', [AdminOrderController::class, 'show'])->name('orders.show');
     Route::get('orders/{order}/shipping-label', [AdminOrderController::class, 'shippingLabel'])->name('orders.shipping-label');

@@ -17,6 +17,13 @@ class GuestCheckoutTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(PaymentGatewayService::class)->ensureSeeded();
+    }
+
     public function test_guest_can_access_checkout(): void
     {
         $response = $this->get(route('checkout.index'));

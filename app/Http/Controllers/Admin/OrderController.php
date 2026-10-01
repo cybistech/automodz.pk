@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\OrderService;
+use App\Services\WhatsApp\WhatsAppOrderAutomationService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -50,13 +51,20 @@ class OrderController extends Controller
         $data = $request->validate([
             'status' => 'required|in:pending,confirmed,processing,shipped,delivered,cancelled',
             'payment_status' => 'required|in:pending,paid,failed,refunded',
+            'tracking_number' => 'nullable|string|max:64',
         ]);
 
         if ($data['payment_status'] === 'paid' && $order->payment_status !== 'paid') {
             $this->orderService->markPaid($order, 'manual-'.now()->timestamp);
         }
 
+        $previousStatus = $order->status;
+
         $order->update($data);
+
+        if ($data['status'] === 'shipped' && $previousStatus !== 'shipped') {
+            WhatsAppOrderAutomationService::make()->sendShippedUpdate($order->fresh());
+        }
 
         return back()->with('success', 'Order updated successfully.');
     }

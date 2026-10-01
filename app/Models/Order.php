@@ -28,6 +28,10 @@ class Order extends Model
         'shipping_city',
         'notes',
         'bank_reference',
+        'tracking_number',
+        'whatsapp_confirmation_sent_at',
+        'whatsapp_confirmed_at',
+        'whatsapp_shipped_sent_at',
     ];
 
     protected function casts(): array
@@ -37,7 +41,19 @@ class Order extends Model
             'shipping' => 'decimal:2',
             'tax' => 'decimal:2',
             'total' => 'decimal:2',
+            'whatsapp_confirmation_sent_at' => 'datetime',
+            'whatsapp_confirmed_at' => 'datetime',
+            'whatsapp_shipped_sent_at' => 'datetime',
         ];
+    }
+
+    public function displayTrackingNumber(): string
+    {
+        if (filled($this->tracking_number)) {
+            return (string) $this->tracking_number;
+        }
+
+        return $this->trackingNumber();
     }
 
     public function user(): BelongsTo
