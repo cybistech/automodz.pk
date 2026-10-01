@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use App\Models\Category;
 use App\Services\CartService;
+use App\Services\PaymentGatewayService;
 use App\Services\SsoProviderService;
 use App\Support\RedisGuard;
 use App\Support\ShopCache;
@@ -32,6 +33,16 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
         }
+
+        View::composer(['shop.checkout', 'shop.orders.index', 'shop.orders.show'], function ($view) {
+            try {
+                $gateways = app(PaymentGatewayService::class);
+                $gateways->ensureSeeded();
+                $gateways->applyRuntimeConfig();
+            } catch (Throwable) {
+                //
+            }
+        });
 
         View::composer(['auth.login', 'auth.register', 'components.social-login-buttons'], function ($view) {
             try {

@@ -29,6 +29,7 @@
                 <a href="{{ route('admin.shipping-cities.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.shipping-cities.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Shipping</a>
                 <a href="{{ route('admin.orders.index') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.orders.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Orders</a>
                 <a href="{{ route('admin.sso-providers.edit') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.sso-providers.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">SSO Login</a>
+                <a href="{{ route('admin.payment-gateways.edit') }}" class="block rounded-lg px-4 py-2.5 text-sm {{ request()->routeIs('admin.payment-gateways.*') ? 'bg-orange-500/20 text-orange-400' : 'text-slate-300 hover:bg-slate-800' }}">Payment Gateways</a>
                 <a href="{{ route('home') }}" class="block rounded-lg px-4 py-2.5 text-sm text-slate-400 hover:bg-slate-800">View Store</a>
             </nav>
             <div class="mt-auto border-t border-slate-800 p-4">

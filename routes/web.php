@@ -10,7 +10,9 @@ use App\Http\Controllers\Admin\SsoProviderController as AdminSsoProviderControll
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ShippingCityController as AdminShippingCityController;
 use App\Http\Controllers\Payment\JazzCashController;
+use App\Http\Controllers\Payment\PayPalController;
 use App\Http\Controllers\Payment\StripeController;
+use App\Http\Controllers\Admin\PaymentGatewayController as AdminPaymentGatewayController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
@@ -57,6 +59,8 @@ Route::get('/order/confirmation/{order}', [OrderController::class, 'confirmation
 Route::get('/payment/stripe/success/{order}', [StripeController::class, 'success'])->name('payment.stripe.success');
 Route::get('/payment/stripe/cancel/{order}', [StripeController::class, 'cancel'])->name('payment.stripe.cancel');
 Route::post('/payment/jazzcash/return', [JazzCashController::class, 'return'])->name('payment.jazzcash.return');
+Route::get('/payment/paypal/success/{order}', [PayPalController::class, 'success'])->name('payment.paypal.success');
+Route::get('/payment/paypal/cancel/{order}', [PayPalController::class, 'cancel'])->name('payment.paypal.cancel');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
@@ -83,6 +87,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin'])->group(fun
     Route::get('reviews', [AdminReviewController::class, 'index'])->name('reviews.index');
     Route::patch('reviews/{review}', [AdminReviewController::class, 'update'])->name('reviews.update');
     Route::delete('reviews/{review}', [AdminReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::get('payment-gateways', [AdminPaymentGatewayController::class, 'edit'])->name('payment-gateways.edit');
+    Route::patch('payment-gateways', [AdminPaymentGatewayController::class, 'update'])->name('payment-gateways.update');
     Route::get('sso-providers', [AdminSsoProviderController::class, 'edit'])->name('sso-providers.edit');
     Route::patch('sso-providers', [AdminSsoProviderController::class, 'update'])->name('sso-providers.update');
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');

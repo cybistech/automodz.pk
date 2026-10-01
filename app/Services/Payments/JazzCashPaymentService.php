@@ -3,12 +3,17 @@
 namespace App\Services\Payments;
 
 use App\Models\Order;
+use App\Services\PaymentGatewayService;
 use Illuminate\Support\Carbon;
 
 class JazzCashPaymentService
 {
+    public function __construct(private PaymentGatewayService $gateways) {}
+
     public function buildPaymentForm(Order $order): array
     {
+        $this->gateways->applyRuntimeConfig('jazzcash');
+
         $config = config('payments.jazzcash');
         $amount = (int) round($order->total * 100);
         $txnRef = $order->order_number;
@@ -50,6 +55,8 @@ class JazzCashPaymentService
 
     public function verifyResponse(array $response): bool
     {
+        $this->gateways->applyRuntimeConfig('jazzcash');
+
         $receivedHash = $response['pp_SecureHash'] ?? '';
         unset($response['pp_SecureHash']);
 

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Services\PaymentGatewayService;
 use Illuminate\Http\Request;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
@@ -15,10 +16,13 @@ class StripeController extends Controller
     public function __construct(
         private OrderService $orderService,
         private CartService $cart,
+        private PaymentGatewayService $gateways,
     ) {}
 
     public function success(Request $request, Order $order)
     {
+        $this->gateways->applyRuntimeConfig('stripe');
+
         Stripe::setApiKey(config('payments.stripe.secret'));
 
         $sessionId = $request->get('session_id');

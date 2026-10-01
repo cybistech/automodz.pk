@@ -8,6 +8,7 @@ use App\Models\ShippingCity;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\OtpService;
+use App\Services\PaymentGatewayService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;

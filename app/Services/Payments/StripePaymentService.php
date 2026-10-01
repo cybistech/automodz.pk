@@ -3,13 +3,18 @@
 namespace App\Services\Payments;
 
 use App\Models\Order;
+use App\Services\PaymentGatewayService;
 use Stripe\Checkout\Session;
 use Stripe\Stripe;
 
 class StripePaymentService
 {
+    public function __construct(private PaymentGatewayService $gateways) {}
+
     public function createCheckoutSession(Order $order): Session
     {
+        $this->gateways->applyRuntimeConfig('stripe');
+
         Stripe::setApiKey(config('payments.stripe.secret'));
 
         $lineItems = $order->items->map(fn ($item) => [

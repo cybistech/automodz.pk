@@ -49,6 +49,7 @@ class DatabaseSeeder extends Seeder
             ->update(['is_active' => false]);
 
         $this->call(SsoProviderSeeder::class);
+        $this->call(PaymentGatewaySeeder::class);
         $this->call(ShippingCitySeeder::class);
         $this->call(MotorcycleCatalogSeeder::class);
     }
