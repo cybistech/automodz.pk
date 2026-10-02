@@ -39,6 +39,7 @@ class OrderController extends Controller
     public function shippingLabel(Order $order)
     {
         $order->load('items.product');
+        $order->ensureGuestTrackingToken();
 
         return view('admin.orders.shipping-label', [
             'order' => $order,

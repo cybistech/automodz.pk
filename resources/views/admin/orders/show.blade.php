@@ -7,6 +7,9 @@
     <div class="space-y-6 lg:col-span-2">
         <div class="card p-6">
             <h2 class="font-semibold">Order Details</h2>
+            <p class="mt-1 text-sm text-slate-400">
+                Placed {{ $order->placedAtFormatted() }} <span class="text-slate-500">(Pakistan Standard Time)</span>
+            </p>
             <div class="mt-4 space-y-3">
                 @foreach($order->items as $item)
                     <div class="flex justify-between border-b border-slate-800 py-3">

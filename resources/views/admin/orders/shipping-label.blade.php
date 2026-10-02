@@ -589,7 +589,8 @@
 <body @class(['embed-mode' => request()->boolean('embed')])>
 @php
     $isEmbed = request()->boolean('embed');
-    $tracking = $order->trackingNumber();
+    $tracking = $order->scannableTrackingReference();
+    $trackingDisplay = $order->displayTrackingNumber();
     $codAmount = $order->codCollectAmount();
     $weight = $order->parcelWeightKg();
     $weightDisplay = number_format($weight, 2).' kg';
@@ -625,7 +626,7 @@
                         <span class="lbl">Tracking No:</span>
                         <div class="sl-barcode-small-wrap">
                             <svg id="barcode-top"></svg>
-                            <span class="sl-tracking-code-small">{{ $tracking }}</span>
+                            <span class="sl-tracking-code-small">{{ $trackingDisplay }}</span>
                         </div>
                     </div>
                 </div>
@@ -644,7 +645,9 @@
                     <p class="sl-address-name">{{ $sender['name'] }}</p>
                     <div class="sl-address-lines">
                         <p>{{ $sender['address_line_1'] }}</p>
-                        <p>{{ $sender['address_line_2'] }}</p>
+                        @if (filled($sender['address_line_2'] ?? null))
+                            <p>{{ $sender['address_line_2'] }}</p>
+                        @endif
                     </div>
                     <div class="sl-contact-row">
                         <svg viewBox="0 0 24 24" fill="none" stroke-width="2" aria-hidden="true"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
@@ -728,7 +731,7 @@
             <div class="sl-barcode-col">
                 <div class="sl-barcode-large-area">
                     <svg id="barcode-bottom"></svg>
-                    <p class="sl-tracking-code-large">{{ $tracking }}</p>
+                    <p class="sl-tracking-code-large">{{ $trackingDisplay }}</p>
                 </div>
                 <footer class="sl-footer">
                     <div class="sl-footer-left">
@@ -806,7 +809,7 @@
             height: 48,
             colorDark: '#0a0a0a',
             colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M,
+            correctLevel: QRCode.CorrectLevel.H,
         });
 
         // Library sometimes leaves both canvas and img — keep one graphic only
@@ -871,7 +874,7 @@
 
     /** One raster page — avoids Chrome’s extra blank sheet from DOM/iframe height quirks */
     function printLabelAsImage() {
-        return waitForLabelImages(labelEl).then(function () {
+        return waitForLabelAssets(labelEl).then(function () {
             return html2canvas(labelEl, {
                 scale: 2,
                 useCORS: true,
@@ -933,6 +936,21 @@
         }));
     }
 
+    function waitForLabelAssets(root) {
+        return waitForLabelImages(root).then(function () {
+            return new Promise(function (resolve) {
+                var qrCanvas = root ? root.querySelector('#qrcode canvas') : null;
+
+                if (qrCanvas && qrCanvas.width > 0) {
+                    resolve();
+                    return;
+                }
+
+                setTimeout(resolve, 200);
+            });
+        });
+    }
+
     function downloadShippingLabel() {
         if (! labelEl || typeof html2canvas !== 'function') {
             window.print();
@@ -945,7 +963,7 @@
             btn.textContent = 'Preparing download…';
         }
 
-        waitForLabelImages(labelEl).then(function () {
+        waitForLabelAssets(labelEl).then(function () {
             return html2canvas(labelEl, {
                 scale: 2,
                 useCORS: true,

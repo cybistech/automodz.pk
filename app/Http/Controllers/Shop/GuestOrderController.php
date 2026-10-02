@@ -44,19 +44,18 @@ class GuestOrderController extends Controller
         ]);
     }
 
-    public function tracking(Order $order)
+    public function tracking(string $tracking)
     {
         $token = (string) request('token', '');
 
-        if ($token === '' || ! hash_equals($order->guest_token ?? '', $token)) {
+        $order = Order::findByPublicTrackingReference($tracking);
+
+        if (! $order || $token === '' || ! hash_equals((string) ($order->guest_token ?? ''), $token)) {
             abort(403, 'Invalid or expired tracking link.');
         }
 
         $order->load('items', 'payment');
 
-        return view('shop.orders.show', [
-            'order' => $order,
-            'isGuestConfirmation' => true,
-        ]);
+        return view('shop.orders.tracking', compact('order'));
     }
 }

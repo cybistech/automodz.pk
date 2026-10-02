@@ -23,6 +23,7 @@
         <thead class="border-b border-slate-700 bg-slate-800/50">
             <tr>
                 <th class="px-4 py-3 text-left">Order</th>
+                <th class="px-4 py-3 text-left">Placed (PKT)</th>
                 <th class="px-4 py-3 text-left">Customer</th>
                 <th class="px-4 py-3 text-left">Payment</th>
                 <th class="px-4 py-3 text-left">Total</th>
@@ -34,6 +35,7 @@
             @foreach($orders as $order)
                 <tr class="border-b border-slate-800">
                     <td class="px-4 py-3 font-medium">{{ $order->order_number }}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-slate-300">{{ $order->placedAtFormatted() }}</td>
                     <td class="px-4 py-3">{{ $order->customer_name }}</td>
                     <td class="px-4 py-3 capitalize">{{ str_replace('_', ' ', $order->payment_method) }}</td>
                     <td class="px-4 py-3">Rs. {{ number_format($order->total) }}</td>

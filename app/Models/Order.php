@@ -57,6 +57,36 @@ class Order extends Model
         return $this->trackingNumber();
     }
 
+    public function scannableTrackingReference(): string
+    {
+        return strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $this->displayTrackingNumber()));
+    }
+
+    public static function findByPublicTrackingReference(string $reference): ?self
+    {
+        $normalized = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', $reference));
+
+        if ($normalized === '') {
+            return null;
+        }
+
+        return static::query()
+            ->where(function ($query) use ($normalized, $reference) {
+                $query->whereRaw(
+                    "UPPER(REPLACE(REPLACE(REPLACE(REPLACE(order_number, '-', ''), ' ', ''), '/', ''), '.', '')) = ?",
+                    [$normalized]
+                )->orWhereRaw(
+                    "UPPER(REPLACE(REPLACE(REPLACE(REPLACE(tracking_number, '-', ''), ' ', ''), '/', ''), '.', '')) = ?",
+                    [$normalized]
+                );
+
+                if ($reference !== $normalized) {
+                    $query->orWhere('tracking_number', $reference);
+                }
+            })
+            ->first();
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -75,6 +105,13 @@ class Order extends Model
     public function isPaid(): bool
     {
         return $this->payment_status === 'paid';
+    }
+
+    public function placedAtFormatted(string $format = 'd M Y, h:i A'): string
+    {
+        return $this->created_at
+            ->timezone(config('app.timezone'))
+            ->format($format);
     }
 
     /** @return list<string> */
@@ -176,9 +213,9 @@ class Order extends Model
         $this->ensureGuestTrackingToken();
 
         return route('orders.tracking', [
-            'order' => $this,
+            'tracking' => $this->scannableTrackingReference(),
             'token' => $this->guest_token,
-        ]);
+        ], absolute: true);
     }
 
     public function ensureGuestTrackingToken(): void
