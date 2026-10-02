@@ -13,7 +13,8 @@ return new class extends Migration
             $table->string('key')->unique();
             $table->string('label');
             $table->boolean('is_enabled')->default(false);
-            $table->json('settings')->nullable();
+            // Text, not JSON: settings use Laravel encrypted:array (opaque ciphertext).
+            $table->text('settings')->nullable();
             $table->unsignedSmallInteger('sort_order')->default(0);
             $table->timestamps();
         });
