@@ -104,5 +104,6 @@
             <main class="p-6">@yield('content')</main>
         </div>
     </div>
+    @stack('scripts')
 </body>
 </html>
