@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\SocialAccount;
 use App\Models\User;
 use App\Services\GuestOrderService;
+use App\Services\SsoProviderService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
@@ -13,20 +15,37 @@ use Laravel\Socialite\Facades\Socialite;
 
 class SocialAuthController extends Controller
 {
-    public function __construct(private GuestOrderService $guestOrders) {}
+    public function __construct(
+        private GuestOrderService $guestOrders,
+        private SsoProviderService $sso,
+    ) {}
 
-    public function redirect(string $provider)
+    public function redirect(Request $request, string $provider)
     {
-        $this->validateProvider($provider);
+        if (! $this->sso->isLoginEnabled($provider)) {
+            abort(404);
+        }
 
-        return Socialite::driver($provider)->redirect();
+        if ($request->filled('redirect')) {
+            session(['url.intended' => $request->query('redirect')]);
+        }
+
+        $this->sso->applyRuntimeConfig($provider);
+        $driver = $this->sso->socialiteDriver($provider);
+
+        return Socialite::driver($driver)->redirect();
     }
 
     public function callback(string $provider)
     {
-        $this->validateProvider($provider);
+        if (! $this->sso->isLoginEnabled($provider)) {
+            abort(404);
+        }
 
-        $socialUser = Socialite::driver($provider)->user();
+        $this->sso->applyRuntimeConfig($provider);
+        $driver = $this->sso->socialiteDriver($provider);
+
+        $socialUser = Socialite::driver($driver)->user();
 
         $account = SocialAccount::where('provider', $provider)
             ->where('provider_id', $socialUser->getId())
@@ -63,12 +82,5 @@ class SocialAuthController extends Controller
         Auth::login($user, true);
 
         return redirect()->intended(route('dashboard'));
-    }
-
-    private function validateProvider(string $provider): void
-    {
-        if (! in_array($provider, ['google', 'facebook'])) {
-            abort(404);
-        }
     }
 }

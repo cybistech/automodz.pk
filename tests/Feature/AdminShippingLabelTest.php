@@ -44,7 +44,7 @@ class AdminShippingLabelTest extends TestCase
             ->assertSee('Saad Sajid', false)
             ->assertSee('Print shipping label', false)
             ->assertSee('Download label (PNG)', false)
-            ->assertSee('AUTOMODZ.PK', false)
+            ->assertSee('AutoModz', false)
             ->assertSee('Drive Your Style', false)
             ->assertSee('COD Amount', false)
             ->assertSee('Parcel Weight', false);

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Services\WhatsApp\WhatsAppOrderAutomationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
@@ -72,7 +73,11 @@ class OrderService
                 'currency' => $order->currency,
             ]);
 
-            return $order->load('items', 'payment');
+            $order = $order->load('items', 'payment');
+
+            WhatsAppOrderAutomationService::make()->sendOrderConfirmation($order);
+
+            return $order;
         });
     }
 
@@ -89,5 +94,7 @@ class OrderService
             'gateway_response' => $gatewayResponse,
             'paid_at' => now(),
         ]);
+
+        WhatsAppOrderAutomationService::make()->sendOrderConfirmation($order->fresh());
     }
 }

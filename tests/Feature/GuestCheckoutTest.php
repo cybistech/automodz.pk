@@ -8,6 +8,7 @@ use App\Models\ShippingCity;
 use App\Models\User;
 use App\Services\CartService;
 use App\Services\OtpService;
+use App\Services\PaymentGatewayService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Cache;
 use Tests\TestCase;
@@ -15,6 +16,13 @@ use Tests\TestCase;
 class GuestCheckoutTest extends TestCase
 {
     use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        app(PaymentGatewayService::class)->ensureSeeded();
+    }
 
     public function test_guest_can_access_checkout(): void
     {

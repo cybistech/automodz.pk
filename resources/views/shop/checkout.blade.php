@@ -78,13 +78,19 @@
                 <div class="mt-4 space-y-3">
                     @foreach($paymentMethods as $key => $label)
                         <label class="flex cursor-pointer items-center gap-3 rounded-lg border border-slate-700 p-4 transition hover:border-orange-500/50 has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500/10">
-                            <input type="radio" name="payment_method" value="{{ $key }}" @checked(old('payment_method', 'cod') === $key) class="text-orange-500 focus:ring-orange-500">
+                            <input type="radio" name="payment_method" value="{{ $key }}" @checked(old('payment_method', array_key_first($paymentMethods)) === $key) class="text-orange-500 focus:ring-orange-500">
                             <div>
                                 <p class="font-medium">{{ $label }}</p>
                                 @if($key === 'easypaisa' && ! empty($easypaisa['account_number']))
                                     <p class="mt-1 text-xs text-slate-400">Send payment to {{ $easypaisa['account_title'] }} — {{ $easypaisa['account_number'] }}</p>
                                 @elseif($key === 'cod')
                                     <p class="mt-1 text-xs text-slate-400">Pay when your order is delivered</p>
+                                @elseif($key === 'stripe')
+                                    <p class="mt-1 text-xs text-slate-400">Secure card payment via Stripe</p>
+                                @elseif($key === 'jazzcash')
+                                    <p class="mt-1 text-xs text-slate-400">Pay with JazzCash mobile wallet</p>
+                                @elseif($key === 'paypal')
+                                    <p class="mt-1 text-xs text-slate-400">Pay with your PayPal account</p>
                                 @endif
                             </div>
                         </label>

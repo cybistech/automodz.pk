@@ -6,7 +6,7 @@
     <title>Shipping Label — {{ $order->order_number }}</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600&family=Rajdhani:wght@700&family=Roboto:ital,wght@0,400;0,500;0,700;0,900;1,700;1,900&display=swap" rel="stylesheet">
     <style>
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -105,65 +105,42 @@
 
         .sl-logo-block {
             border-right: 1px solid var(--sl-line);
+            padding: 5px 8px 4px 10px;
             display: flex;
-            align-items: flex-start;
-            padding: 3px 8px 2px 10px;
+            align-items: center;
+            overflow: hidden;
         }
 
-        .sl-brand {
-            display: flex;
-            flex-direction: column;
-            align-items: flex-start;
-            justify-content: flex-start;
+        .sl-site-logo {
             width: 100%;
+            min-width: 0;
         }
 
-        .sl-brand-car {
-            width: 88px;
-            height: 22px;
+        .sl-site-logo-mark {
+            width: 100%;
+            max-width: 228px;
+            height: auto;
             display: block;
             margin-bottom: 0;
         }
 
-        .sl-brand-name {
-            font-size: 20px;
-            font-weight: 900;
-            font-style: italic;
-            letter-spacing: -0.4px;
-            line-height: 0.95;
+        .sl-site-logo-categories {
+            margin-top: 1px;
+            font-size: 6px;
+            font-weight: 700;
+            letter-spacing: 0.45px;
             text-transform: uppercase;
             color: var(--sl-black);
-            white-space: nowrap;
+            line-height: 1.2;
         }
 
-        .sl-brand-name .brand-red {
-            color: var(--sl-red);
-        }
-
-        .sl-brand-cats {
-            margin-top: 2px;
-            font-size: 5.8px;
-            font-weight: 500;
-            letter-spacing: 0.4px;
-            line-height: 1.25;
-            text-transform: uppercase;
-            color: var(--sl-black);
-            max-width: 230px;
-        }
-
-        .sl-brand-cats .sep {
-            margin: 0 3px;
-            color: #555;
-            font-weight: 400;
-        }
-
-        .sl-brand-script {
+        .sl-site-logo-tagline {
             margin-top: 1px;
             font-family: var(--sl-script);
-            font-size: 11px;
+            font-size: 12px;
             font-weight: 600;
             line-height: 1;
-            color: var(--sl-red);
+            color: var(--sl-black);
         }
 
         .sl-order-block {
@@ -635,15 +612,7 @@
     <article class="shipping-label" aria-label="Shipping label for order {{ $order->order_number }}">
         <header class="sl-header">
             <div class="sl-logo-block">
-                <div class="sl-brand" aria-label="AutoModz.pk">
-                    <svg class="sl-brand-car" viewBox="0 0 120 32" fill="none" aria-hidden="true">
-                        <path d="M8 20 C22 6, 44 4, 62 8 C78 12, 92 10, 108 18" stroke="#0a0a0a" stroke-width="2.6" stroke-linecap="round"/>
-                        <path d="M18 22 C34 12, 52 10, 68 14 C84 18, 96 17, 104 22" stroke="#b91c1c" stroke-width="1.8" stroke-linecap="round"/>
-                    </svg>
-                    <p class="sl-brand-name">AUTO<span class="brand-red">MODZ</span>.PK</p>
-                    <p class="sl-brand-cats">Auto Parts<span class="sep">|</span> Accessories<span class="sep">|</span> Car Care</p>
-                    <p class="sl-brand-script">Drive Your Style</p>
-                </div>
+                <x-shipping-label-logo />
             </div>
 
             <div class="sl-order-block">

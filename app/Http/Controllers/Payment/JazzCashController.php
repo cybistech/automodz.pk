@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Services\CartService;
 use App\Services\OrderService;
+use App\Services\PaymentGatewayService;
 use App\Services\Payments\JazzCashPaymentService;
 use Illuminate\Http\Request;
 
@@ -15,10 +16,13 @@ class JazzCashController extends Controller
         private JazzCashPaymentService $jazzCash,
         private OrderService $orderService,
         private CartService $cart,
+        private PaymentGatewayService $gateways,
     ) {}
 
     public function return(Request $request)
     {
+        $this->gateways->applyRuntimeConfig('jazzcash');
+
         $response = $request->all();
 
         if (! $this->jazzCash->verifyResponse($response)) {

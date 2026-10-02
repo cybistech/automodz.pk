@@ -74,6 +74,24 @@
             <p class="text-sm text-slate-400">{{ $order->shipping_city }}</p>
         </div>
 
+        <div class="card p-6">
+            <h3 class="font-semibold">WhatsApp</h3>
+            <dl class="mt-3 space-y-2 text-sm">
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-400">Confirmation sent</dt>
+                    <dd>{{ $order->whatsapp_confirmation_sent_at?->format('d M Y, H:i') ?? '—' }}</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-400">Customer confirmed</dt>
+                    <dd>{{ $order->whatsapp_confirmed_at?->format('d M Y, H:i') ?? 'Pending' }}</dd>
+                </div>
+                <div class="flex justify-between gap-3">
+                    <dt class="text-slate-400">Shipped message</dt>
+                    <dd>{{ $order->whatsapp_shipped_sent_at?->format('d M Y, H:i') ?? '—' }}</dd>
+                </div>
+            </dl>
+        </div>
+
         <form action="{{ route('admin.orders.update', $order) }}" method="POST" class="card p-6">
             @csrf @method('PATCH')
             <h3 class="font-semibold">Update Status</h3>
@@ -93,6 +111,11 @@
                             <option value="{{ $status }}" @selected($order->payment_status === $status)>{{ ucfirst($status) }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div>
+                    <label class="text-sm text-slate-400">Courier tracking number</label>
+                    <input type="text" name="tracking_number" value="{{ old('tracking_number', $order->tracking_number) }}" class="input-field mt-1" placeholder="{{ $order->trackingNumber() }}">
+                    <p class="mt-1 text-xs text-slate-500">Used in WhatsApp shipped notifications. Leave blank to use order tracking code.</p>
                 </div>
                 <button type="submit" class="btn-primary w-full">Update Order</button>
             </div>

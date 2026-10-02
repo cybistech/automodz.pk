@@ -24,6 +24,8 @@
             <input type="password" name="password_confirmation" required class="input-field mt-1">
         </div>
         <button type="submit" class="btn-primary w-full">Create Account</button>
+
+        <x-social-login-buttons />
         <p class="text-center text-sm text-slate-400">
             Already have an account? <a href="{{ route('login') }}" class="text-orange-400 hover:text-orange-300">Sign in</a>
         </p>

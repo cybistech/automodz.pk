@@ -26,6 +26,8 @@
             Remember me
         </label>
         <button type="submit" class="btn-primary mt-6 w-full">Sign in with Email</button>
+
+        <x-social-login-buttons :redirect="request('redirect')" />
         <div class="mt-4 flex justify-between text-sm">
             @if(Route::has('password.request'))
                 <a href="{{ route('password.request') }}" class="text-orange-400 hover:text-orange-300">Forgot password?</a>
