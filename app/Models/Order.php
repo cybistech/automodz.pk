@@ -208,14 +208,42 @@ class Order extends Model
         return $this->created_at?->format('d-m-Y') ?? now()->format('d-m-Y');
     }
 
-    public function shippingLabelQrUrl(): string
+    public function publicTrackingUrl(): string
     {
         $this->ensureGuestTrackingToken();
 
-        return route('orders.tracking', [
+        $path = route('orders.tracking', [
             'tracking' => $this->scannableTrackingReference(),
             'token' => $this->guest_token,
-        ], absolute: true);
+        ], false);
+
+        return rtrim($this->publicSiteBaseUrl(), '/').$path;
+    }
+
+    public function shippingLabelQrUrl(): string
+    {
+        return $this->publicTrackingUrl();
+    }
+
+    protected function publicSiteBaseUrl(): string
+    {
+        $candidates = array_filter([
+            (string) config('site.url'),
+            (string) config('app.url'),
+        ]);
+
+        foreach ($candidates as $candidate) {
+            if ($candidate !== '' && ! $this->isLocalDevelopmentUrl($candidate)) {
+                return $candidate;
+            }
+        }
+
+        return $candidates[0] ?? 'https://automodz.pk';
+    }
+
+    protected function isLocalDevelopmentUrl(string $url): bool
+    {
+        return (bool) preg_match('#^https?://(localhost|127\.0\.0\.1)(:\d+)?(/|$)#i', $url);
     }
 
     public function ensureGuestTrackingToken(): void

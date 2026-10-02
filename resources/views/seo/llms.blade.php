@@ -6,6 +6,8 @@
 
 - Homepage: {{ $siteUrl }}/
 - All products: {{ $siteUrl }}/products
+- Privacy Policy: {{ $siteUrl }}/privacy-policy
+- Terms of Use: {{ $siteUrl }}/terms-of-use
 - HTML sitemap: {{ $siteUrl }}/sitemap
 - XML sitemap: {{ $siteUrl }}/sitemap.xml
 

@@ -71,7 +71,7 @@
 
     <footer class="mt-16 border-t border-slate-800 bg-slate-900">
         <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
-            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="grid gap-8 sm:grid-cols-2 lg:grid-cols-6">
                 <div>
                     <x-brand-logo size="sm" />
                     <p class="mt-4 text-sm leading-relaxed text-slate-400">{{ config('site.tagline') }}. Your trusted source for auto and motorcycle modifications across Pakistan.</p>
@@ -105,6 +105,14 @@
                     </ul>
                 </div>
                 <div>
+                    <h4 class="font-display text-lg font-bold text-white">Legal</h4>
+                    <ul class="mt-3 space-y-2 text-sm text-slate-400">
+                        <li><a href="{{ route('legal.privacy') }}" class="transition hover:text-orange-400">Privacy Policy</a></li>
+                        <li><a href="{{ route('legal.terms') }}" class="transition hover:text-orange-400">Terms of Use</a></li>
+                        <li><a href="{{ route('orders.track') }}" class="transition hover:text-orange-400">Track Order</a></li>
+                    </ul>
+                </div>
+                <div>
                     <h4 class="font-display text-lg font-bold text-white">Contact</h4>
                     <ul class="mt-3 space-y-2 text-sm text-slate-400">
                         <li><a href="mailto:{{ config('site.email') }}" class="font-medium text-orange-400 transition hover:text-orange-300">{{ config('site.email') }}</a></li>
@@ -118,8 +126,13 @@
                     </ul>
                 </div>
             </div>
-            <div class="mt-8 border-t border-slate-800 pt-8 text-center text-sm text-slate-500">
-                &copy; {{ date('Y') }} {{ config('site.name') }} — {{ config('site.domain') }}. All rights reserved.
+            <div class="mt-8 flex flex-col items-center justify-between gap-3 border-t border-slate-800 pt-8 text-center text-sm text-slate-500 sm:flex-row sm:text-left">
+                <p>&copy; {{ date('Y') }} {{ config('site.name') }} — {{ config('site.domain') }}. All rights reserved.</p>
+                <p class="text-slate-400">
+                    <a href="{{ route('legal.privacy') }}" class="transition hover:text-orange-400">Privacy</a>
+                    <span class="mx-2 text-slate-600">·</span>
+                    <a href="{{ route('legal.terms') }}" class="transition hover:text-orange-400">Terms</a>
+                </p>
             </div>
         </div>
     </footer>

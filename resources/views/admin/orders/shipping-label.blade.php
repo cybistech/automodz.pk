@@ -226,7 +226,7 @@
         }
 
         .sl-qr-box,
-        .sl-qr-box #qrcode {
+        .sl-qr-box svg {
             width: 52px;
             height: 52px;
             overflow: hidden;
@@ -244,19 +244,12 @@
             justify-content: center;
         }
 
-        .sl-qr-box #qrcode canvas,
-        .sl-qr-box #qrcode img {
+        .sl-qr-box svg {
             display: block !important;
             width: 48px !important;
             height: 48px !important;
             max-width: 48px !important;
             max-height: 48px !important;
-        }
-
-        /* qrcodejs may inject extra img/canvas copies — show only one */
-        .sl-qr-box #qrcode canvas ~ canvas,
-        .sl-qr-box #qrcode img ~ img {
-            display: none !important;
         }
 
         .sl-qr-caption {
@@ -580,7 +573,7 @@
                 break-inside: avoid !important;
             }
 
-            .sl-qr-box #qrcode {
+            .sl-qr-box svg {
                 overflow: hidden !important;
             }
         }
@@ -598,7 +591,8 @@
     $paymentLabel = $order->payment_method === 'cod'
         ? 'Cash on Delivery (COD)'
         : $order->paymentModeLabel();
-    $qrUrl = $order->shippingLabelQrUrl();
+    $qrUrl = $order->publicTrackingUrl();
+    $trackingQrSvg = \App\Support\TrackingQrCode::svg($qrUrl, 120);
 @endphp
 
 @if (! $isEmbed)
@@ -633,8 +627,10 @@
             </div>
 
             <div class="sl-qr-block">
-                <div class="sl-qr-box" id="qrcode" role="img" aria-label="QR code for order updates"></div>
-                <p class="sl-qr-caption">Scan for order updates</p>
+                <div class="sl-qr-box" id="tracking-qr" role="img" aria-label="QR code linking to live order tracking">
+                    {!! $trackingQrSvg !!}
+                </div>
+                <p class="sl-qr-caption">Scan to track status</p>
             </div>
         </header>
 
@@ -757,7 +753,6 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.6/dist/JsBarcode.all.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <script>
 (function () {
@@ -784,9 +779,9 @@
             lineColor: '#0a0a0a',
         });
 
-        JsBarcode('#barcode-bottom', tracking, {
+        JsBarcode('#barcode-bottom', qrUrl, {
             format: 'CODE128',
-            width: 1.35,
+            width: 1.1,
             height: 48,
             displayValue: false,
             margin: 0,
@@ -794,41 +789,7 @@
         });
     }
 
-    function initTrackingQr() {
-        var host = document.getElementById('qrcode');
-        if (! host || host.dataset.qrReady === '1') {
-            return;
-        }
-
-        host.dataset.qrReady = '1';
-        host.innerHTML = '';
-
-        new QRCode(host, {
-            text: qrUrl,
-            width: 48,
-            height: 48,
-            colorDark: '#0a0a0a',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H,
-        });
-
-        // Library sometimes leaves both canvas and img — keep one graphic only
-        var canvas = host.querySelector('canvas');
-        var images = host.querySelectorAll('img');
-
-        if (canvas && images.length) {
-            images.forEach(function (img) {
-                img.remove();
-            });
-        } else if (images.length > 1) {
-            for (var i = 1; i < images.length; i += 1) {
-                images[i].remove();
-            }
-        }
-    }
-
     initBarcodes();
-    initTrackingQr();
 
     function getPrintHostDocument() {
         if (window.self !== window.top) {
@@ -939,14 +900,14 @@
     function waitForLabelAssets(root) {
         return waitForLabelImages(root).then(function () {
             return new Promise(function (resolve) {
-                var qrCanvas = root ? root.querySelector('#qrcode canvas') : null;
+                var qrSvg = root ? root.querySelector('#tracking-qr svg') : null;
 
-                if (qrCanvas && qrCanvas.width > 0) {
+                if (qrSvg) {
                     resolve();
                     return;
                 }
 
-                setTimeout(resolve, 200);
+                setTimeout(resolve, 50);
             });
         });
     }

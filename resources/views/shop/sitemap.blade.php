@@ -25,6 +25,8 @@
             <li><a href="{{ route('products.index') }}" class="text-orange-400 hover:text-orange-300">All Products</a></li>
             <li><a href="{{ route('products.index', ['sort' => 'price_low']) }}" class="text-orange-400 hover:text-orange-300">Deals & Offers</a></li>
             <li><a href="{{ route('orders.track') }}" class="text-orange-400 hover:text-orange-300">Track Order</a></li>
+            <li><a href="{{ route('legal.privacy') }}" class="text-orange-400 hover:text-orange-300">Privacy Policy</a></li>
+            <li><a href="{{ route('legal.terms') }}" class="text-orange-400 hover:text-orange-300">Terms of Use</a></li>
         </ul>
     </section>
 

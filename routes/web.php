@@ -20,6 +20,7 @@ use App\Http\Controllers\Shop\CartController;
 use App\Http\Controllers\Shop\CheckoutController;
 use App\Http\Controllers\Shop\GuestOrderController;
 use App\Http\Controllers\Shop\HomeController;
+use App\Http\Controllers\Shop\LegalController;
 use App\Http\Controllers\Shop\OrderController;
 use App\Http\Controllers\Shop\ProductController;
 use App\Http\Controllers\Admin\ReviewController as AdminReviewController;
@@ -53,6 +54,9 @@ Route::delete('/cart/{productId}', [CartController::class, 'remove'])->name('car
 
 Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
 Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+
+Route::get('/privacy-policy', [LegalController::class, 'privacy'])->name('legal.privacy');
+Route::get('/terms-of-use', [LegalController::class, 'terms'])->name('legal.terms');
 
 Route::get('/order/track', [GuestOrderController::class, 'trackForm'])->name('orders.track');
 Route::post('/order/track', [GuestOrderController::class, 'track'])->name('orders.track.submit');

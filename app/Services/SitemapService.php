@@ -47,6 +47,24 @@ class SitemapService
                 'changefreq' => 'weekly',
                 'priority' => '0.5',
             ],
+            [
+                'loc' => $base.$this->path('orders.track'),
+                'lastmod' => $now,
+                'changefreq' => 'monthly',
+                'priority' => '0.6',
+            ],
+            [
+                'loc' => $base.$this->path('legal.privacy'),
+                'lastmod' => $now,
+                'changefreq' => 'yearly',
+                'priority' => '0.4',
+            ],
+            [
+                'loc' => $base.$this->path('legal.terms'),
+                'lastmod' => $now,
+                'changefreq' => 'yearly',
+                'priority' => '0.4',
+            ],
         ];
     }
 
